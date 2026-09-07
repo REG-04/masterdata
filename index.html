@@ -29,10 +29,10 @@
         --thp-gray-soft: #f1f5f9;
         
         --bg-main: #f8fafc;
-        --sidebar-bg: #e2e8f0; /* Sidebar สีเทา */
+        --sidebar-bg: #e2e8f0; 
         
         --card-shadow: 0 8px 25px -8px rgba(0,0,0,0.08);
-        --hover-shadow: 0 12px 30px -8px rgba(218, 37, 29, 0.15); /* เงาตอน Hover เป็นโทนแดง */
+        --hover-shadow: 0 12px 30px -8px rgba(218, 37, 29, 0.15); 
       }
 
       body { 
@@ -43,7 +43,7 @@
       }
       
       /* ==========================================
-         Sidebar (Gray Background with Red Accents)
+         Sidebar
          ========================================== */
       .sidebar {
         position: fixed;
@@ -71,7 +71,6 @@
         font-size: 1.2rem;
         box-shadow: 0 4px 10px rgba(218, 37, 29, 0.3);
       }
-      /* ชื่อระบบใช้สีแดงเป็นหลัก */
       .sidebar-logo h5 { margin: 0; font-weight: 800; color: var(--thp-red); letter-spacing: 0.5px; }
       .sidebar-logo p { margin: 0; font-size: 0.8rem; color: var(--thp-gray); font-weight: 600; }
       
@@ -89,7 +88,6 @@
       .nav-link:hover {
         background-color: #cbd5e1; color: var(--thp-red);
       }
-      /* เมนูที่ถูกเลือกเป็นสีแดง */
       .nav-link.active {
         background-color: var(--thp-red);
         color: white;
@@ -107,20 +105,25 @@
         border: 1px solid #cbd5e1;
         border-radius: 16px;
       }
-      .form-select-custom { 
+      .form-select-custom, .form-input-custom { 
         border-radius: 10px; 
         border: 1px solid #cbd5e1; 
         background-color: #ffffff;
         font-weight: 600;
-        color: var(--thp-red);
+        color: var(--thp-blue);
         padding: 0.6rem 1rem;
-        cursor: pointer;
         width: 100%;
         margin-top: 0.5rem;
+        margin-bottom: 1rem;
       }
-      .form-select-custom:focus { 
+      .form-select-custom:focus, .form-input-custom:focus { 
         border-color: var(--thp-red);
         box-shadow: 0 0 0 3px rgba(218, 37, 29, 0.15); 
+        outline: none;
+      }
+      .form-input-custom::placeholder {
+          color: #94a3b8;
+          font-weight: 400;
       }
 
       /* ==========================================
@@ -136,7 +139,6 @@
         display: flex; justify-content: space-between; align-items: flex-end;
         margin-bottom: 2.5rem;
       }
-      /* หัวข้อหน้าใช้สีแดง */
       .page-title h3 { margin: 0; font-weight: 800; color: var(--thp-red); font-size: 1.8rem; }
       .page-title p { margin: 0; color: var(--thp-gray); font-weight: 500; margin-top: 0.25rem; }
 
@@ -159,7 +161,6 @@
         flex-wrap: wrap;
         gap: 10px;
       }
-      /* หัวข้อในการ์ดใช้สีแดง */
       .card-header-custom h6 { margin: 0; font-weight: 700; color: var(--thp-red); font-size: 1.1rem; }
 
       .summary-card {
@@ -178,16 +179,13 @@
         font-size: 1.75rem;
       }
       
-      /* Colors for specific summary cards (Data Colors: Blue, Red, Gray) */
+      /* Colors */
       .card-total .summary-info h3 { color: var(--thp-blue); }
       .bg-total { background-color: var(--thp-blue-soft); color: var(--thp-blue); }
-      
       .card-completed .summary-info h3 { color: var(--thp-blue-light); }
       .bg-completed { background-color: #e0f2fe; color: var(--thp-blue-light); }
-      
       .card-canceled .summary-info h3 { color: var(--thp-red); }
       .bg-canceled { background-color: var(--thp-red-soft); color: var(--thp-red); }
-      
       .card-pending .summary-info h3 { color: var(--thp-gray); }
       .bg-pending { background-color: #e2e8f0; color: var(--thp-gray); }
 
@@ -204,7 +202,7 @@
       .table { margin-bottom: 0; font-size: 0.95rem; }
       thead th { 
         position: sticky; top: 0; z-index: 1; 
-        background-color: var(--thp-red) !important; /* หัวตารางสีแดง */
+        background-color: var(--thp-red) !important; 
         color: #ffffff !important; 
         font-weight: 600; padding: 1rem;
         letter-spacing: 0.5px;
@@ -216,7 +214,7 @@
       tr.row-gray td { background-color: #f8fafc !important; }
       tr:hover td { background-color: #e2e8f0 !important; }
       
-      /* Modern Pill Badges */
+      /* Badges */
       .badge-modern { 
         padding: 0.4em 1em; border-radius: 50px; font-weight: 700; font-size: 0.85rem; 
       }
@@ -224,7 +222,7 @@
       .badge-red { background-color: var(--thp-red-soft); color: var(--thp-red); }
       .badge-gray { background-color: #e2e8f0; color: var(--thp-gray); }
       
-      /* ปุ่ม Export รูปภาพ (สีแดง) */
+      /* ปุ่ม Export */
       .btn-export-img {
         background: var(--thp-red);
         color: white; border: none; padding: 0.5rem 1.25rem;
@@ -232,8 +230,6 @@
         transition: all 0.3s ease; box-shadow: 0 4px 10px rgba(218, 37, 29, 0.2);
       }
       .btn-export-img:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(218, 37, 29, 0.3); color: white;}
-
-      /* ปุ่ม Export CSV (สีน้ำเงิน) */
       .btn-export-csv {
         background: var(--thp-blue);
         color: white; border: none; padding: 0.5rem 1.25rem;
@@ -271,14 +267,34 @@
         </li>
       </ul>
 
-      <!-- ตัวกรอง -->
+      <!-- ส่วนควบคุมตัวกรองและค้นหา -->
       <div class="sidebar-filter mt-auto mb-4">
+        
+        <!-- 1. ค้นหาแบบพิมพ์กรอก -->
+        <label for="searchInput" class="fw-bold mb-1" style="font-size: 0.85rem; color: var(--thp-red);">
+          <i class="bi bi-search"></i> ค้นหาชื่อที่ทำการ / รหัส
+        </label>
+        <input type="text" id="searchInput" class="form-control form-input-custom" placeholder="พิมพ์คำค้นหา..." onkeyup="updateDashboard()">
+
+        <!-- 2. กรองตามสถานะความคืบหน้า (ใหม่) -->
+        <label for="progressFilter" class="fw-bold mb-1" style="font-size: 0.85rem; color: var(--thp-red);">
+          <i class="bi bi-bar-chart-steps"></i> กรองตามสถานะงาน
+        </label>
+        <select id="progressFilter" class="form-select form-select-custom" onchange="updateDashboard()">
+          <option value="all">แสดงทุกสถานะ</option>
+          <option value="not_started">🔴 ยังไม่ดำเนินการเลย (0%)</option>
+          <option value="in_progress">🟡 กำลังดำเนินการ</option>
+          <option value="completed">🟢 เสร็จสิ้นแล้ว (100%)</option>
+        </select>
+
+        <!-- 3. กรองแบบ Dropdown กลุ่ม ปจ. -->
         <label for="filterSelect" class="fw-bold mb-1" style="font-size: 0.85rem; color: var(--thp-red);">
           <i class="bi bi-funnel-fill"></i> เลือกกลุ่ม ปจ. เพื่อกรอง
         </label>
-        <select id="filterSelect" class="form-select form-select-custom" onchange="updateDashboard()">
+        <select id="filterSelect" class="form-select form-select-custom" onchange="updateDashboard()" style="margin-bottom: 0;">
           <option value="all">🌐 แสดงภาพรวมทั้งหมด</option>
         </select>
+        
       </div>
     </div>
 
@@ -333,7 +349,7 @@
         </div>
       </div>
 
-      <!-- แถวที่ 2: กราฟแท่ง (100% Stacked) และ วงกลม -->
+      <!-- แถวที่ 2: กราฟแท่ง และ วงกลม -->
       <div class="row">
         <div class="col-lg-8 mb-4">
           <div class="card h-100 mb-0">
@@ -368,7 +384,6 @@
           <div class="card mb-0" id="export-section">
             <div class="card-header-custom" data-html2canvas-ignore="true">
               <h6><i class="bi bi-table"></i> รายละเอียดระดับที่ทำการ</h6>
-              <!-- กลุ่มปุ่ม Export โทนน้ำเงิน-แดง -->
               <div class="d-flex gap-2">
                 <button class="btn-export-csv" onclick="exportTableToCSV()" id="btn-export-csv">
                   <i class="bi bi-filetype-csv me-1"></i> ดาวน์โหลด CSV
@@ -380,7 +395,6 @@
             </div>
             
             <div class="text-center pt-4 pb-2 px-3" id="report-header">
-              <!-- หัวข้อรายงานในภาพเป็นสีแดง -->
               <h4 class="fw-bold mb-1" style="color: var(--thp-red);" id="report-title">รายงานสถานะหมุด</h4>
               <p class="text-secondary mb-3" style="font-size: 0.95rem; font-weight: 500;" id="report-date"></p>
             </div>
@@ -414,13 +428,12 @@
       var rawData = [];
       var sheetHeaders = [];
 
-      // 📌 นำ Web App URL ที่ได้จากขั้นตอนที่ 1 มาวางในเครื่องหมายคำพูดด้านล่างนี้
+      // 📌 Web App URL
       const API_URL = "https://script.google.com/macros/s/AKfycbx44WDJzhWthzMU-qABgoDphLrEqvWquGu57nDa8wf42JV-mcK8IinKlKR-40YnF506eA/exec";
 
       window.onload = function() {
         document.getElementById('current-date-display').innerHTML = 'ข้อมูลอัปเดตล่าสุด: ' + getThaiDate();
         
-        // ใช้ fetch เพื่อดึงข้อมูลจาก API แทน
         fetch(API_URL)
           .then(response => response.json())
           .then(data => {
@@ -474,16 +487,56 @@
 
       function updateDashboard() {
         var selectedVal = document.getElementById('filterSelect').value;
+        var progressVal = document.getElementById('progressFilter').value;
+        var searchVal = document.getElementById('searchInput').value.toLowerCase().trim();
         var filteredData = rawData;
         
         var reportTitle = document.getElementById('report-title');
         var reportDate = document.getElementById('report-date');
         
-        if (selectedVal === 'all') {
-          reportTitle.textContent = "รายงานสถานะหมุด: ภาพรวมทุกกลุ่ม ปจ.";
-        } else {
+        // 1. กรองด้วย กลุ่ม ปจ. 
+        if (selectedVal !== 'all') {
+          filteredData = filteredData.filter(item => String(item.colC) === selectedVal);
+        }
+
+        // 2. กรองตามสถานะงาน (ยังไม่ทำ / กำลังทำ / เสร็จแล้ว)
+        if (progressVal !== 'all') {
+          filteredData = filteredData.filter(item => {
+            var total = parseNum(item.colD);
+            var completed = parseNum(item.colE);
+            var canceled = parseNum(item.colF);
+            var pending = parseNum(item.colG);
+            
+            if (progressVal === 'not_started') {
+              return completed === 0 && canceled === 0; // ยอดสำเร็จและยกเลิกเป็น 0 
+            } else if (progressVal === 'completed') {
+              return pending === 0 && total > 0; // ไม่มียอดรอแล้ว
+            } else if (progressVal === 'in_progress') {
+              return (completed > 0 || canceled > 0) && pending > 0; // ทำไปบ้างแล้วแต่ยังไม่หมด
+            }
+            return true;
+          });
+        }
+
+        // 3. กรองต่อด้วยช่องพิมพ์ค้นหา 
+        if (searchVal !== '') {
+          filteredData = filteredData.filter(item => {
+            var colAStr = String(item.colA).toLowerCase();
+            var colBStr = String(item.colB).toLowerCase();
+            var colCStr = String(item.colC).toLowerCase();
+            return colAStr.includes(searchVal) || colBStr.includes(searchVal) || colCStr.includes(searchVal);
+          });
+        }
+        
+        // อัปเดตหัวข้อรายงาน
+        if (progressVal === 'not_started') {
+          reportTitle.textContent = "รายงาน: ที่ทำการที่ยังไม่ดำเนินการ (0%)";
+        } else if (searchVal !== '') {
+          reportTitle.textContent = "ผลการค้นหา: '" + document.getElementById('searchInput').value + "'";
+        } else if (selectedVal !== 'all') {
           reportTitle.textContent = "รายงานสถานะหมุด: กลุ่ม ปจ. " + selectedVal;
-          filteredData = rawData.filter(item => String(item.colC) === selectedVal);
+        } else {
+          reportTitle.textContent = "รายงานสถานะหมุด: ภาพรวมทั้งหมด";
         }
         
         reportDate.innerHTML = 'ข้อมูล ณ วันที่ ' + getThaiDate();
@@ -513,7 +566,6 @@
         document.getElementById('sum-canceled').textContent = sumCanceled.toLocaleString();
         document.getElementById('sum-pending').textContent = sumPending.toLocaleString();
 
-        // กราฟแท่ง (100% Stacked)
         var barArray = [['ที่ทำการ', 'สำเร็จ', 'ยกเลิก', 'รอ']];
         data.forEach(function(item) {
           barArray.push([
@@ -530,7 +582,6 @@
 
         var barOptions = {
           width: calculatedWidth,
-          // โทนสีข้อมูล: น้ำเงิน (สำเร็จ), แดง (ยกเลิก), เทา (รอ)
           colors: ['#1976d2', '#da251d', '#94a3b8'], 
           isStacked: 'percent', 
           chartArea: { left: 50, right: 10, top: 30, bottom: 80 }, 
@@ -551,7 +602,6 @@
         var barChart = new google.visualization.ColumnChart(document.getElementById('barchart'));
         barChart.draw(barData, barOptions);
 
-        // กราฟวงกลม
         var pieData = google.visualization.arrayToDataTable([
           ['สถานะ', 'จำนวน'],
           ['สำเร็จ', sumCompleted],
@@ -560,7 +610,6 @@
         ]);
 
         var pieOptions = {
-          // โทนสีข้อมูล: น้ำเงิน (สำเร็จ), แดง (ยกเลิก), เทา (รอ)
           colors: ['#1976d2', '#da251d', '#94a3b8'], 
           pieHole: 0.5, 
           chartArea: {width: '90%', height: '80%', top: 15}, 
@@ -578,13 +627,20 @@
         tbody.innerHTML = '';
         
         if(data.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="8" class="py-4 text-muted bg-white">ไม่พบข้อมูล</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="8" class="py-4 text-muted bg-white">ไม่พบข้อมูลที่ค้นหา</td></tr>';
           return;
         }
 
         data.forEach(function(item, index) {
           var tr = document.createElement('tr');
           tr.className = index % 2 === 0 ? 'row-white' : 'row-gray';
+          
+          // เช็คว่ายังไม่ดำเนินการเลยหรือไม่ (0%) เพื่อแสดงป้ายเตือนสีแดงเข้ม
+          var isNotStarted = parseNum(item.colE) === 0 && parseNum(item.colF) === 0;
+          var percentBadge = isNotStarted 
+              ? `<span class="badge-modern" style="background-color: var(--thp-red); color: white;">0%</span>` 
+              : `<span class="badge-modern badge-blue">${item.colH || '0%'}</span>`;
+
           tr.innerHTML = `
             <td class="text-slate-500">${item.colA || '-'}</td>
             <td class="fw-bold text-start text-dark">${item.colB || '-'}</td>
@@ -593,7 +649,7 @@
             <td><span class="badge-modern badge-blue">${item.colE || '0'}</span></td>
             <td><span class="badge-modern badge-red">${item.colF || '0'}</span></td>
             <td><span class="badge-modern badge-gray">${item.colG || '0'}</span></td>
-            <td><span class="badge-modern badge-blue">${item.colH || '0%'}</span></td>
+            <td>${percentBadge}</td>
           `;
           tbody.appendChild(tr);
         });
@@ -601,11 +657,39 @@
 
       function exportTableToCSV() {
         var selectedGroup = document.getElementById('filterSelect').value;
-        var fileName = selectedGroup === 'all' ? 'รายงานหมุด_ภาพรวม.csv' : 'รายงานหมุด_' + selectedGroup + '.csv';
+        var progressVal = document.getElementById('progressFilter').value;
+        var searchVal = document.getElementById('searchInput').value.trim();
+        var fileName = 'รายงานหมุด';
+        
+        if (progressVal === 'not_started') fileName += '_ยังไม่ดำเนินการ';
+        else if (selectedGroup !== 'all') fileName += '_' + selectedGroup;
+        
+        if (searchVal !== '') fileName += '_ค้นหา-' + searchVal;
+        fileName += '.csv';
         
         var currentData = rawData;
+        
+        // จำลองการกรองข้อมูลก่อน Export ให้เหมือนบนตาราง
         if (selectedGroup !== 'all') {
-          currentData = rawData.filter(item => String(item.colC) === selectedGroup);
+          currentData = currentData.filter(item => String(item.colC) === selectedGroup);
+        }
+        if (progressVal !== 'all') {
+          currentData = currentData.filter(item => {
+            var total = parseNum(item.colD), completed = parseNum(item.colE);
+            var canceled = parseNum(item.colF), pending = parseNum(item.colG);
+            if (progressVal === 'not_started') return completed === 0 && canceled === 0;
+            else if (progressVal === 'completed') return pending === 0 && total > 0;
+            else if (progressVal === 'in_progress') return (completed > 0 || canceled > 0) && pending > 0;
+            return true;
+          });
+        }
+        if (searchVal !== '') {
+          var searchLower = searchVal.toLowerCase();
+          currentData = currentData.filter(item => {
+            return String(item.colA).toLowerCase().includes(searchLower) || 
+                   String(item.colB).toLowerCase().includes(searchLower) || 
+                   String(item.colC).toLowerCase().includes(searchLower);
+          });
         }
 
         var csv = [];
@@ -616,16 +700,10 @@
 
         currentData.forEach(function(item) {
           var row = [
-            item.colA || '',
-            item.colB || '',
-            item.colC || '',
-            item.colD || 0,
-            item.colE || 0,
-            item.colF || 0,
-            item.colG || 0,
-            item.colH || '0%'
+            item.colA || '', item.colB || '', item.colC || '',
+            item.colD || 0, item.colE || 0, item.colF || 0,
+            item.colG || 0, item.colH || '0%'
           ];
-          
           var csvRow = row.map(function(cell) {
             var cellStr = String(cell);
             if (cellStr.includes(',') || cellStr.includes('"') || cellStr.includes('\n')) {
@@ -655,7 +733,14 @@
         var tableContainer = document.getElementById('table-container');
         
         var selectedGroup = document.getElementById('filterSelect').value;
-        var fileName = selectedGroup === 'all' ? 'รายงานหมุด_ภาพรวม.png' : 'รายงานหมุด_' + selectedGroup + '.png';
+        var progressVal = document.getElementById('progressFilter').value;
+        var searchVal = document.getElementById('searchInput').value.trim();
+        var fileName = 'รายงานหมุด';
+        
+        if (progressVal === 'not_started') fileName += '_ยังไม่ดำเนินการ';
+        else if (selectedGroup !== 'all') fileName += '_' + selectedGroup;
+        if (searchVal !== '') fileName += '_ค้นหา-' + searchVal;
+        fileName += '.png';
 
         btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> กำลังประมวลผล...';
         btn.classList.add('disabled');
