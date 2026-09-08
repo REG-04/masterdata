@@ -402,7 +402,9 @@
       const API_URL = "https://script.google.com/macros/s/AKfycbx44WDJzhWthzMU-qABgoDphLrEqvWquGu57nDa8wf42JV-mcK8IinKlKR-40YnF506eA/exec";
 
       window.onload = function() {
-        document.getElementById('current-date-display').innerHTML = 'ข้อมูล ณ วันที่ ' + getThaiDate();
+        // 📌 แก้ไขข้อความเป็น "ประจำวันที่"
+        document.getElementById('current-date-display').innerHTML = 'ประจำวันที่ ' + getThaiDate();
+        
         fetch(API_URL)
           .then(response => response.json())
           .then(data => {
@@ -462,6 +464,7 @@
         var searchVal = document.getElementById('searchInput').value.toLowerCase().trim();
         var filteredData = rawData;
         var reportTitle = document.getElementById('report-title');
+        var reportDate = document.getElementById('report-date'); // 📌 เพิ่มตัวแปรสำหรับวันที่
         
         if (selectedVal !== 'all') filteredData = filteredData.filter(item => String(item.colC) === selectedVal);
         if (progressVal !== 'all') {
@@ -485,6 +488,9 @@
         else if (searchVal !== '') reportTitle.textContent = "ผลการค้นหา: '" + document.getElementById('searchInput').value + "'";
         else if (selectedVal !== 'all') reportTitle.textContent = "สถานะปักหมุด: กลุ่ม ปจ. " + selectedVal;
         else reportTitle.textContent = "รายงานสถานะปักหมุด: ภาพรวมทั้งหมด";
+
+        // 📌 เพิ่มคำสั่งอัปเดตข้อความวันที่ตรงนี้
+        reportDate.innerHTML = 'ประจำวันที่ ' + getThaiDate();
 
         var tableDataToRender = filteredData;
         if (selectedVal === 'all' && searchVal === '') {
