@@ -499,7 +499,7 @@
           filteredData = filteredData.filter(item => String(item.colC) === selectedVal);
         }
 
-        // 2. กรองตามสถานะงาน (ยังไม่ทำ / กำลังทำ / เสร็จแล้ว)
+        // 2. กรองตามสถานะงาน
         if (progressVal !== 'all') {
           filteredData = filteredData.filter(item => {
             var total = parseNum(item.colD);
@@ -508,11 +508,11 @@
             var pending = parseNum(item.colG);
             
             if (progressVal === 'not_started') {
-              return completed === 0 && canceled === 0; // ยอดสำเร็จและยกเลิกเป็น 0 
+              return completed === 0 && canceled === 0;
             } else if (progressVal === 'completed') {
-              return pending === 0 && total > 0; // ไม่มียอดรอแล้ว
+              return pending === 0 && total > 0;
             } else if (progressVal === 'in_progress') {
-              return (completed > 0 || canceled > 0) && pending > 0; // ทำไปบ้างแล้วแต่ยังไม่หมด
+              return (completed > 0 || canceled > 0) && pending > 0;
             }
             return true;
           });
@@ -530,19 +530,62 @@
         
         // อัปเดตหัวข้อรายงาน
         if (progressVal === 'not_started') {
-          reportTitle.textContent = "รายงาน: ที่ทำการที่ยังไม่ดำเนินการ (0%)";
+          reportTitle.textContent = "รายงานสถานะปักหมุด: ที่ทำการที่ยังไม่ดำเนินการ (0%)";
         } else if (searchVal !== '') {
-          reportTitle.textContent = "ผลการค้นหา: '" + document.getElementById('searchInput').value + "'";
+          reportTitle.textContent = "ผลการค้นหาสถานะปักหมุด: '" + document.getElementById('searchInput').value + "'";
         } else if (selectedVal !== 'all') {
-          reportTitle.textContent = "รายงานสถานะหมุด: กลุ่ม ปจ. " + selectedVal;
+          reportTitle.textContent = "รายงานสถานะปักหมุด: กลุ่ม ปจ. " + selectedVal;
         } else {
-          reportTitle.textContent = "รายงานสถานะหมุด: ภาพรวมทั้งหมด";
+          reportTitle.textContent = "รายงานสถานะปักหมุด: ภาพรวมทั้งหมด";
         }
         
         reportDate.innerHTML = 'ข้อมูล ณ วันที่ ' + getThaiDate();
 
-        drawCharts(filteredData); 
-        updateTable(filteredData);
+        // สร้างข้อมูลสำหรับตาราง (ยุบรวมระดับจังหวัด)
+        var tableDataToRender = filteredData;
+        
+        if (selectedVal === 'all' && searchVal === '') {
+          var groupedTable = {};
+          
+          // คำนวณยอดรวมของแต่ละกลุ่ม ปจ.
+          filteredData.forEach(function(item) {
+            var prov = String(item.colC);
+            if (!groupedTable[prov]) {
+              groupedTable[prov] = { total: 0, completed: 0, canceled: 0, pending: 0 };
+            }
+            groupedTable[prov].total += parseNum(item.colD);
+            groupedTable[prov].completed += parseNum(item.colE);
+            groupedTable[prov].canceled += parseNum(item.colF);
+            groupedTable[prov].pending += parseNum(item.colG);
+          });
+
+          // แปลงกลับเป็น Array ให้ตารางเอาไปใช้งาน
+          tableDataToRender = [];
+          for (var prov in groupedTable) {
+            var g = groupedTable[prov];
+            // คำนวณเปอร์เซ็นต์ความสำเร็จ
+            var percent = g.total > 0 ? Math.round((g.completed / g.total) * 100) : 0;
+            
+            tableDataToRender.push({
+              colA: '-', 
+              colB: 'กลุ่ม ' + prov, // 📌 แก้ไขตรงนี้: เปลี่ยนเป็นคำว่า "กลุ่ม" แล้วตามด้วยชื่อจังหวัด
+              colC: prov,
+              colD: g.total,
+              colE: g.completed,
+              colF: g.canceled,
+              colG: g.pending,
+              colH: percent + '%'
+            });
+          }
+          
+          // จัดเรียงตามชื่อ ปจ.
+          tableDataToRender.sort(function(a, b) {
+            return a.colC.localeCompare(b.colC);
+          });
+        }
+
+        drawCharts(filteredData, selectedVal); 
+        updateTable(tableDataToRender);
       }
 
       function parseNum(val) {
@@ -552,7 +595,8 @@
 
       var chartFontName = 'Sarabun';
 
-      function drawCharts(data) {
+      // 📌 รับค่า selectedVal เข้ามาในฟังก์ชัน
+      function drawCharts(data, selectedVal) {
         var sumTotal = 0, sumCompleted = 0, sumCanceled = 0, sumPending = 0;
         data.forEach(function(item) {
           sumTotal += parseNum(item.colD);
@@ -566,25 +610,56 @@
         document.getElementById('sum-canceled').textContent = sumCanceled.toLocaleString();
         document.getElementById('sum-pending').textContent = sumPending.toLocaleString();
 
-        var barArray = [['ที่ทำการ', 'สำเร็จ', 'ยกเลิก', 'รอ']];
-        data.forEach(function(item) {
-          barArray.push([
-            String(item.colB), 
-            parseNum(item.colE), 
-            parseNum(item.colF), 
-            parseNum(item.colG)
-          ]);
-        });
+        // กราฟแท่ง (100% Stacked)
+        var barArray = [['ชื่อ', 'สำเร็จ', 'ยกเลิก', 'รอ']];
+        var searchVal = document.getElementById('searchInput').value.trim();
+
+        // 📌 เช็คเงื่อนไข: ถ้าเป็น "ภาพรวมทั้งหมด" และไม่ได้พิมพ์ค้นหาอะไรอยู่ ให้รวมกลุ่มระดับจังหวัด
+        if (selectedVal === 'all' && searchVal === '') {
+          var groupedData = {};
+          
+          // วนลูปเพื่อนำยอดของแต่ละอำเภอมารวมกันตามจังหวัด
+          data.forEach(function(item) {
+            var prov = String(item.colC);
+            if (!groupedData[prov]) {
+              groupedData[prov] = { completed: 0, canceled: 0, pending: 0 };
+            }
+            groupedData[prov].completed += parseNum(item.colE);
+            groupedData[prov].canceled += parseNum(item.colF);
+            groupedData[prov].pending += parseNum(item.colG);
+          });
+
+          // นำข้อมูลที่รวมแล้วใส่ลงกราฟ
+          for (var prov in groupedData) {
+            barArray.push([
+              prov, 
+              groupedData[prov].completed, 
+              groupedData[prov].canceled, 
+              groupedData[prov].pending
+            ]);
+          }
+        } else {
+          // 📌 ถ้ามีการเลือกจังหวัดใดจังหวัดหนึ่ง หรือค้นหา ให้โชว์เป็นราย "ที่ทำการ" เหมือนเดิม
+          data.forEach(function(item) {
+            barArray.push([
+              String(item.colB), 
+              parseNum(item.colE), 
+              parseNum(item.colF), 
+              parseNum(item.colG)
+            ]);
+          });
+        }
 
         var barData = google.visualization.arrayToDataTable(barArray);
         var wrapperWidth = document.getElementById('barchart-wrapper').clientWidth;
-        var calculatedWidth = Math.max(data.length * 45, wrapperWidth - 20);
+        // ปรับความกว้างกราฟให้ยืดหยุ่นตามจำนวนแท่งข้อมูล (หักหัวตารางออก 1 บรรทัด)
+        var calculatedWidth = Math.max((barArray.length - 1) * 55, wrapperWidth - 20);
 
         var barOptions = {
           width: calculatedWidth,
           colors: ['#1976d2', '#da251d', '#94a3b8'], 
           isStacked: 'percent', 
-          focusTarget: 'category', /* <--- เพิ่มบรรทัดนี้เข้ามาครับ */
+          focusTarget: 'category', /* แสดงข้อมูลทุกสถานะเมื่อเอาเมาส์ชี้ */
           chartArea: { left: 50, right: 10, top: 30, bottom: 80 }, 
           legend: { position: 'top', textStyle: { fontName: chartFontName, fontSize: 13, color: '#475569' } },
           hAxis: { 
@@ -603,6 +678,7 @@
         var barChart = new google.visualization.ColumnChart(document.getElementById('barchart'));
         barChart.draw(barData, barOptions);
 
+        // กราฟวงกลม
         var pieData = google.visualization.arrayToDataTable([
           ['สถานะ', 'จำนวน'],
           ['สำเร็จ', sumCompleted],
