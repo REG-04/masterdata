@@ -15,24 +15,20 @@
     
     <style>
       :root {
-        /* THP Corporate Colors - Red as Primary */
         --thp-red: #da251d;
         --thp-red-dark: #b71c1c;
         --thp-red-soft: #fbe9e8;
-        
         --thp-blue: #003876;
         --thp-blue-light: #1976d2;
         --thp-blue-soft: #e3f2fd;
-        
         --thp-gray: #64748b;
         --thp-gray-light: #94a3b8;
         --thp-gray-soft: #f1f5f9;
-        
-        --bg-main: #f8fafc;
+        --bg-main: #f4f6f9; 
         --sidebar-bg: #e2e8f0; 
-        
-        --card-shadow: 0 8px 25px -8px rgba(0,0,0,0.08);
-        --hover-shadow: 0 12px 30px -8px rgba(218, 37, 29, 0.15); 
+        --sidebar-width: 260px; 
+        --card-radius: 12px; 
+        --card-shadow: 0 4px 15px -3px rgba(0,0,0,0.05); 
       }
 
       body { 
@@ -43,221 +39,179 @@
       }
       
       /* ==========================================
-         Sidebar
+         Sidebar & Mobile Backdrop
          ========================================== */
       .sidebar {
         position: fixed;
         top: 0; left: 0;
-        height: 100vh; width: 280px;
+        height: 100vh; width: var(--sidebar-width);
         background: var(--sidebar-bg); 
-        z-index: 1000;
+        z-index: 1050;
         border-right: 1px solid #cbd5e1;
-        transition: all 0.3s;
+        transition: transform 0.3s ease-in-out;
         display: flex;
         flex-direction: column;
       }
+      .sidebar-backdrop {
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(15, 23, 42, 0.5);
+        z-index: 1040;
+        display: none; opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+      
       .sidebar-logo {
-        padding: 2rem 1.5rem;
-        display: flex;
-        align-items: center;
-        gap: 12px;
+        padding: 1.5rem 1.25rem;
+        display: flex; align-items: center; gap: 10px;
       }
       .sidebar-logo .icon-box {
-        background: var(--thp-red);
-        color: white;
-        width: 42px; height: 42px;
-        border-radius: 10px;
+        background: var(--thp-red); color: white;
+        width: 38px; height: 38px; border-radius: 10px;
         display: flex; justify-content: center; align-items: center;
-        font-size: 1.2rem;
-        box-shadow: 0 4px 10px rgba(218, 37, 29, 0.3);
+        font-size: 1.1rem; box-shadow: 0 4px 8px rgba(218, 37, 29, 0.25);
       }
-      .sidebar-logo h5 { margin: 0; font-weight: 800; color: var(--thp-red); letter-spacing: 0.5px; }
-      .sidebar-logo p { margin: 0; font-size: 0.8rem; color: var(--thp-gray); font-weight: 600; }
+      .sidebar-logo h5 { margin: 0; font-weight: 800; color: var(--thp-red); font-size: 1.1rem; }
+      .sidebar-logo p { margin: 0; font-size: 0.75rem; color: var(--thp-gray); font-weight: 600; }
       
-      .nav-menu { padding: 0.5rem 1rem; list-style: none; margin: 0; }
+      .nav-menu { padding: 0 1rem; list-style: none; margin: 0; }
       .nav-link {
-        color: var(--thp-gray);
-        padding: 0.85rem 1.2rem;
-        border-radius: 12px;
-        display: flex; align-items: center; gap: 12px;
-        text-decoration: none;
-        transition: all 0.2s ease;
-        font-weight: 600;
-        margin-bottom: 0.5rem;
+        color: var(--thp-gray); padding: 0.7rem 1rem; border-radius: 10px;
+        display: flex; align-items: center; gap: 10px; text-decoration: none;
+        transition: all 0.2s ease; font-weight: 600; font-size: 0.95rem; margin-bottom: 0.25rem;
       }
-      .nav-link:hover {
-        background-color: #cbd5e1; color: var(--thp-red);
-      }
-      .nav-link.active {
-        background-color: var(--thp-red);
-        color: white;
-        box-shadow: 0 4px 12px rgba(218, 37, 29, 0.25);
-      }
-      .nav-link i { font-size: 1.25rem; }
-
-      /* ==========================================
-         ตัวกรองใน Sidebar
-         ========================================== */
+      .nav-link:hover { background-color: #cbd5e1; color: var(--thp-red); }
+      .nav-link.active { background-color: var(--thp-red); color: white; box-shadow: 0 4px 10px rgba(218, 37, 29, 0.2); }
+      
       .sidebar-filter {
-        margin: 1rem;
-        padding: 1.25rem;
-        background: #f8fafc;
-        border: 1px solid #cbd5e1;
-        border-radius: 16px;
+        margin: 1rem; padding: 1rem; background: #f8fafc;
+        border: 1px solid #cbd5e1; border-radius: 12px;
+        overflow-y: auto; /* เผื่อจอมือถือสั้น */
       }
+      .filter-label { font-weight: 700; font-size: 0.8rem; color: var(--thp-red); margin-bottom: 0.2rem; display: block; }
       .form-select-custom, .form-input-custom { 
-        border-radius: 10px; 
-        border: 1px solid #cbd5e1; 
-        background-color: #ffffff;
-        font-weight: 600;
-        color: var(--thp-blue);
-        padding: 0.6rem 1rem;
-        width: 100%;
-        margin-top: 0.5rem;
-        margin-bottom: 1rem;
+        border-radius: 8px; border: 1px solid #cbd5e1; background-color: #ffffff;
+        font-weight: 600; font-size: 0.85rem; color: var(--thp-blue);
+        padding: 0.4rem 0.75rem; width: 100%; margin-bottom: 0.8rem;
       }
       .form-select-custom:focus, .form-input-custom:focus { 
-        border-color: var(--thp-red);
-        box-shadow: 0 0 0 3px rgba(218, 37, 29, 0.15); 
-        outline: none;
-      }
-      .form-input-custom::placeholder {
-          color: #94a3b8;
-          font-weight: 400;
+        border-color: var(--thp-red); box-shadow: 0 0 0 3px rgba(218, 37, 29, 0.15); outline: none;
       }
 
       /* ==========================================
          Main Content & Topbar
          ========================================== */
       .main-content {
-        margin-left: 280px;
-        padding: 2rem;
+        margin-left: var(--sidebar-width);
+        padding: 1.5rem 2rem; 
         min-height: 100vh;
+        transition: margin 0.3s ease-in-out;
       }
-
       .top-navbar {
-        display: flex; justify-content: space-between; align-items: flex-end;
-        margin-bottom: 2.5rem;
+        display: flex; justify-content: space-between; align-items: flex-start;
+        margin-bottom: 1.5rem; flex-wrap: wrap; gap: 10px;
       }
-      .page-title h3 { margin: 0; font-weight: 800; color: var(--thp-red); font-size: 1.8rem; }
-      .page-title p { margin: 0; color: var(--thp-gray); font-weight: 500; margin-top: 0.25rem; }
+      .page-title h3 { margin: 0; font-weight: 800; color: var(--thp-red); font-size: 1.6rem; }
+      .page-title p { margin: 0; color: var(--thp-gray); font-weight: 500; font-size: 0.9rem; margin-top: 0.1rem; }
+      
+      /* ปุ่มเมนูสำหรับมือถือ */
+      .btn-mobile-menu {
+        display: none; background: white; border: 1px solid #cbd5e1;
+        color: var(--thp-red); border-radius: 8px; padding: 0.4rem 0.75rem;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      }
 
       /* ==========================================
          Cards & Summary
          ========================================== */
       .card { 
-        border: none; 
-        border-radius: 16px; 
-        box-shadow: var(--card-shadow);
-        background: #fff; 
-        margin-bottom: 1.5rem;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: 1px solid #e2e8f0; border-radius: var(--card-radius); 
+        box-shadow: var(--card-shadow); background: #fff; margin-bottom: 1rem; 
       }
       .card-header-custom {
-        background-color: transparent;
-        border-bottom: 1px solid #f1f5f9;
-        padding: 1.25rem 1.5rem;
-        display: flex; justify-content: space-between; align-items: center;
-        flex-wrap: wrap;
-        gap: 10px;
+        border-bottom: 1px solid #f1f5f9; padding: 0.8rem 1.25rem; 
+        display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;
       }
-      .card-header-custom h6 { margin: 0; font-weight: 700; color: var(--thp-red); font-size: 1.1rem; }
+      .card-header-custom h6 { margin: 0; font-weight: 700; color: var(--thp-red); font-size: 1rem; }
 
-      .summary-card {
-        padding: 1.5rem;
-        display: flex; justify-content: space-between; align-items: center;
-        border-radius: 16px;
-      }
-      .summary-card:hover { transform: translateY(-4px); box-shadow: var(--hover-shadow); }
-      .summary-info p { margin: 0; font-size: 0.9rem; font-weight: 600; color: var(--thp-gray); }
-      .summary-info h3 { margin: 0; font-weight: 800; font-size: 2rem; margin-top: 5px; line-height: 1; }
+      .summary-card { padding: 1rem 1.25rem; display: flex; justify-content: space-between; align-items: center; }
+      .summary-info p { margin: 0; font-size: 0.85rem; font-weight: 600; color: var(--thp-gray); }
+      .summary-info h3 { margin: 0; font-weight: 800; font-size: 1.6rem; margin-top: 2px; line-height: 1; }
       
-      .icon-float {
-        width: 60px; height: 60px;
-        border-radius: 14px;
-        display: flex; align-items: center; justify-content: center;
-        font-size: 1.75rem;
-      }
+      .icon-float { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; }
       
-      /* Colors */
-      .card-total .summary-info h3 { color: var(--thp-blue); }
-      .bg-total { background-color: var(--thp-blue-soft); color: var(--thp-blue); }
-      .card-completed .summary-info h3 { color: var(--thp-blue-light); }
-      .bg-completed { background-color: #e0f2fe; color: var(--thp-blue-light); }
-      .card-canceled .summary-info h3 { color: var(--thp-red); }
-      .bg-canceled { background-color: var(--thp-red-soft); color: var(--thp-red); }
-      .card-pending .summary-info h3 { color: var(--thp-gray); }
-      .bg-pending { background-color: #e2e8f0; color: var(--thp-gray); }
+      .card-total .summary-info h3 { color: var(--thp-blue); } .bg-total { background-color: var(--thp-blue-soft); color: var(--thp-blue); }
+      .card-completed .summary-info h3 { color: var(--thp-blue-light); } .bg-completed { background-color: #e0f2fe; color: var(--thp-blue-light); }
+      .card-canceled .summary-info h3 { color: var(--thp-red); } .bg-canceled { background-color: var(--thp-red-soft); color: var(--thp-red); }
+      .card-pending .summary-info h3 { color: var(--thp-gray); } .bg-pending { background-color: #e2e8f0; color: var(--thp-gray); }
 
       /* ==========================================
          Charts & Tables
          ========================================== */
-      .scrollable-chart-wrapper {
-        overflow-x: auto; overflow-y: hidden; white-space: nowrap; padding-bottom: 5px;
-      }
-      .chart-container-large { height: 320px; } 
-      .chart-container-compact { width: 100%; height: 320px; }
+      .scrollable-chart-wrapper { overflow-x: auto; overflow-y: hidden; white-space: nowrap; padding-bottom: 5px; }
+      .chart-container-large { height: 280px; } 
+      .chart-container-compact { width: 100%; height: 280px; }
 
-      .table-responsive { max-height: 500px; overflow-y: auto; border-radius: 0 0 16px 16px; }
-      .table { margin-bottom: 0; font-size: 0.95rem; }
+      .table-responsive { max-height: 450px; overflow-y: auto; overflow-x: auto; border-radius: 0 0 var(--card-radius) var(--card-radius); }
+      .table { margin-bottom: 0; font-size: 0.85rem; min-width: 600px; /* บังคับให้ตารางไม่บีบเละบนมือถือ */ } 
       thead th { 
-        position: sticky; top: 0; z-index: 1; 
-        background-color: var(--thp-red) !important; 
-        color: #ffffff !important; 
-        font-weight: 600; padding: 1rem;
-        letter-spacing: 0.5px;
-        border-bottom: none !important;
+        position: sticky; top: 0; z-index: 1; background-color: var(--thp-red) !important; 
+        color: #ffffff !important; font-weight: 600; padding: 0.75rem 1rem; 
+        letter-spacing: 0.3px; border-bottom: none !important; white-space: nowrap;
       }
-      tbody td { padding: 1rem; vertical-align: middle; border-bottom: 1px solid #f1f5f9; font-weight: 500;}
+      tbody td { padding: 0.6rem 1rem; vertical-align: middle; border-bottom: 1px solid #f1f5f9; font-weight: 500; white-space: nowrap;}
       
       tr.row-white td { background-color: #ffffff !important; }
       tr.row-gray td { background-color: #f8fafc !important; }
-      tr:hover td { background-color: #e2e8f0 !important; }
+      tr:hover td { background-color: #f1f5f9 !important; }
       
-      /* Badges */
-      .badge-modern { 
-        padding: 0.4em 1em; border-radius: 50px; font-weight: 700; font-size: 0.85rem; 
-      }
+      .badge-modern { padding: 0.35em 0.8em; border-radius: 50px; font-weight: 700; font-size: 0.75rem; }
       .badge-blue { background-color: #e0f2fe; color: var(--thp-blue-light); }
       .badge-red { background-color: var(--thp-red-soft); color: var(--thp-red); }
       .badge-gray { background-color: #e2e8f0; color: var(--thp-gray); }
       
       /* ปุ่ม Export */
-      .btn-export-img {
-        background: var(--thp-red);
-        color: white; border: none; padding: 0.5rem 1.25rem;
-        border-radius: 50px; font-weight: 600; font-size: 0.9rem;
-        transition: all 0.3s ease; box-shadow: 0 4px 10px rgba(218, 37, 29, 0.2);
+      .btn-sm-custom {
+        padding: 0.4rem 1rem; border-radius: 50px; font-weight: 600; font-size: 0.85rem;
+        border: none; color: white; transition: all 0.2s ease;
       }
-      .btn-export-img:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(218, 37, 29, 0.3); color: white;}
-      .btn-export-csv {
-        background: var(--thp-blue);
-        color: white; border: none; padding: 0.5rem 1.25rem;
-        border-radius: 50px; font-weight: 600; font-size: 0.9rem;
-        transition: all 0.3s ease; box-shadow: 0 4px 10px rgba(0, 56, 118, 0.2);
-      }
-      .btn-export-csv:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0, 56, 118, 0.3); color: white;}
+      .btn-export-csv { background: var(--thp-blue); box-shadow: 0 4px 10px rgba(0, 56, 118, 0.15); }
+      .btn-export-csv:hover { background: #002855; transform: translateY(-1px); }
+      .btn-export-img { background: var(--thp-red); box-shadow: 0 4px 10px rgba(218, 37, 29, 0.15); }
+      .btn-export-img:hover { background: var(--thp-red-dark); transform: translateY(-1px); }
 
-      ::-webkit-scrollbar { width: 6px; height: 8px; }
+      ::-webkit-scrollbar { width: 6px; height: 6px; }
       ::-webkit-scrollbar-track { background: transparent; }
       ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
       ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
+      /* ==========================================
+         Mobile Responsive Styles
+         ========================================== */
       @media (max-width: 991px) {
         .sidebar { transform: translateX(-100%); }
-        .main-content { margin-left: 0; padding: 1.5rem; }
+        .sidebar.show { transform: translateX(0); }
+        .main-content { margin-left: 0; padding: 1rem; }
+        .btn-mobile-menu { display: inline-block; }
+        .page-title h3 { font-size: 1.4rem; }
+        .summary-card { padding: 0.8rem 1rem; }
+        .summary-info h3 { font-size: 1.4rem; }
+        .icon-float { width: 40px; height: 40px; font-size: 1.2rem; }
       }
     </style>
   </head>
   <body>
     
+    <!-- Mobile Backdrop -->
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
     <!-- Sidebar -->
-    <div class="sidebar">
+    <div class="sidebar" id="sidebar">
       <div class="sidebar-logo">
         <div class="icon-box"><i class="bi bi-envelope-paper-fill"></i></div>
         <div>
           <h5>THP DASHBOARD</h5>
-          <p>ระบบรายงานหมุดที่ทำการ</p>
+          <p>ระบบรายงานปักหมุด</p>
         </div>
       </div>
       
@@ -268,80 +222,74 @@
       </ul>
 
       <!-- ส่วนควบคุมตัวกรองและค้นหา -->
-      <div class="sidebar-filter mt-auto mb-4">
-        
-        <!-- 1. ค้นหาแบบพิมพ์กรอก -->
-        <label for="searchInput" class="fw-bold mb-1" style="font-size: 0.85rem; color: var(--thp-red);">
-          <i class="bi bi-search"></i> ค้นหาชื่อที่ทำการ / รหัส
-        </label>
+      <div class="sidebar-filter mt-auto mb-3">
+        <label for="searchInput" class="filter-label"><i class="bi bi-search"></i> ค้นหาชื่อที่ทำการ / รหัส</label>
         <input type="text" id="searchInput" class="form-control form-input-custom" placeholder="พิมพ์คำค้นหา..." onkeyup="updateDashboard()">
 
-        <!-- 2. กรองตามสถานะความคืบหน้า (ใหม่) -->
-        <label for="progressFilter" class="fw-bold mb-1" style="font-size: 0.85rem; color: var(--thp-red);">
-          <i class="bi bi-bar-chart-steps"></i> กรองตามสถานะงาน
-        </label>
+        <label for="progressFilter" class="filter-label"><i class="bi bi-bar-chart-steps"></i> กรองตามสถานะงาน</label>
         <select id="progressFilter" class="form-select form-select-custom" onchange="updateDashboard()">
           <option value="all">แสดงทุกสถานะ</option>
-          <option value="not_started">🔴 ยังไม่ดำเนินการเลย (0%)</option>
+          <option value="not_started">🔴 ยังไม่ดำเนินการ (0%)</option>
           <option value="in_progress">🟡 กำลังดำเนินการ</option>
           <option value="completed">🟢 เสร็จสิ้นแล้ว (100%)</option>
         </select>
 
-        <!-- 3. กรองแบบ Dropdown กลุ่ม ปจ. -->
-        <label for="filterSelect" class="fw-bold mb-1" style="font-size: 0.85rem; color: var(--thp-red);">
-          <i class="bi bi-funnel-fill"></i> เลือกกลุ่ม ปจ. เพื่อกรอง
-        </label>
-        <select id="filterSelect" class="form-select form-select-custom" onchange="updateDashboard()" style="margin-bottom: 0;">
+        <label for="filterSelect" class="filter-label"><i class="bi bi-funnel-fill"></i> เลือกกลุ่ม ปจ.</label>
+        <select id="filterSelect" class="form-select form-select-custom mb-0" onchange="updateDashboard()">
           <option value="all">🌐 แสดงภาพรวมทั้งหมด</option>
         </select>
-        
       </div>
     </div>
 
     <!-- Main Content -->
     <div class="main-content">
       
-      <!-- Topbar -->
+      <!-- Topbar with Hamburger Menu for Mobile -->
       <div class="top-navbar">
-        <div class="page-title">
-          <h3>สรุปผลการดำเนินงาน</h3>
-          <p id="current-date-display"><i class="bi bi-calendar3"></i> กำลังโหลดข้อมูล...</p>
+        <div class="d-flex align-items-center gap-2">
+          <button class="btn-mobile-menu" id="btnToggleSidebar">
+            <i class="bi bi-list fs-5"></i>
+          </button>
+          <div class="page-title">
+            <h3>สรุปผลการดำเนินงาน</h3>
+            <p id="current-date-display"><i class="bi bi-calendar3"></i> กำลังโหลดข้อมูล...</p>
+          </div>
         </div>
       </div>
 
       <!-- แถวที่ 1: การ์ด 4 สถานะ -->
       <div class="row">
-        <div class="col-xl-3 col-md-6 mb-4">
-          <div class="card summary-card card-total mb-0">
+        <div class="col-xl-3 col-6 mb-3"> <!-- บนมือถือให้เรียง 2 การ์ดต่อแถว (col-6) -->
+          <div class="card summary-card card-total h-100">
             <div class="summary-info">
-              <p>หมุดทั้งหมด</p>
+              <p>ทั้งหมด</p>
               <h3 id="sum-total">-</h3>
             </div>
             <div class="icon-float bg-total"><i class="bi bi-map-fill"></i></div>
           </div>
         </div>
-        <div class="col-xl-3 col-md-6 mb-4">
-          <div class="card summary-card card-completed mb-0">
+        <div class="col-xl-3 col-6 mb-3">
+          <div class="card summary-card card-completed h-100">
             <div class="summary-info">
-              <p>หมุดสำเร็จ</p>
+              <p>สำเร็จ</p>
               <h3 id="sum-completed">-</h3>
             </div>
             <div class="icon-float bg-completed"><i class="bi bi-check-circle-fill"></i></div>
           </div>
         </div>
-        <div class="col-xl-3 col-md-6 mb-4">
-          <div class="card summary-card card-canceled mb-0">
+        <div class="col-xl-3 col-6 mb-3">
+          <div class="card summary-card card-canceled h-100">
             <div class="summary-info">
-              <p>หมุดยกเลิก</p>
+              <p>ยกเลิก</p>
               <h3 id="sum-canceled">-</h3>
             </div>
             <div class="icon-float bg-canceled"><i class="bi bi-x-circle-fill"></i></div>
           </div>
         </div>
-        <div class="col-xl-3 col-md-6 mb-4">
-          <div class="card summary-card card-pending mb-0">
+        <div class="col-xl-3 col-6 mb-3">
+          <div class="card summary-card card-pending h-100">
             <div class="summary-info">
-              <p>รอดำเนินการ</p>
+              <p>รอทำ</p>
               <h3 id="sum-pending">-</h3>
             </div>
             <div class="icon-float bg-pending"><i class="bi bi-clock-fill"></i></div>
@@ -351,12 +299,12 @@
 
       <!-- แถวที่ 2: กราฟแท่ง และ วงกลม -->
       <div class="row">
-        <div class="col-lg-8 mb-4">
-          <div class="card h-100 mb-0">
+        <div class="col-lg-8 mb-3">
+          <div class="card h-100">
             <div class="card-header-custom">
-              <h6><i class="bi bi-bar-chart-fill"></i> สัดส่วนความคืบหน้ารายที่ทำการ (100%)</h6>
+              <h6><i class="bi bi-bar-chart-fill"></i> สัดส่วนความคืบหน้า (100%)</h6>
             </div>
-            <div class="card-body p-3 scrollable-chart-wrapper" id="barchart-wrapper">
+            <div class="card-body p-2 scrollable-chart-wrapper" id="barchart-wrapper">
               <div id="barchart" class="chart-container-large">
                 <div class="d-flex justify-content-center align-items-center h-100">
                   <div class="spinner-border text-danger" role="status"></div>
@@ -366,12 +314,12 @@
           </div>
         </div>
         
-        <div class="col-lg-4 mb-4">
-          <div class="card h-100 mb-0">
+        <div class="col-lg-4 mb-3">
+          <div class="card h-100">
             <div class="card-header-custom">
-              <h6><i class="bi bi-pie-chart-fill"></i> ภาพรวมสถานะหมุด</h6>
+              <h6><i class="bi bi-pie-chart-fill"></i> ภาพรวมสถานะ</h6>
             </div>
-            <div class="card-body p-2 d-flex align-items-center">
+            <div class="card-body p-1 d-flex align-items-center">
               <div id="piechart" class="chart-container-compact"></div>
             </div>
           </div>
@@ -381,34 +329,34 @@
       <!-- แถวที่ 3: ตารางและ Export -->
       <div class="row">
         <div class="col-12">
-          <div class="card mb-0" id="export-section">
+          <div class="card mb-3" id="export-section">
             <div class="card-header-custom" data-html2canvas-ignore="true">
-              <h6><i class="bi bi-table"></i> รายละเอียดระดับที่ทำการ</h6>
-              <div class="d-flex gap-2">
-                <button class="btn-export-csv" onclick="exportTableToCSV()" id="btn-export-csv">
-                  <i class="bi bi-filetype-csv me-1"></i> ดาวน์โหลด CSV
+              <h6><i class="bi bi-table"></i> รายละเอียดการทำงาน</h6>
+              <div class="d-flex gap-2 flex-wrap">
+                <button class="btn-sm-custom btn-export-csv" onclick="exportTableToCSV()" id="btn-export-csv">
+                  <i class="bi bi-filetype-csv me-1"></i> CSV
                 </button>
-                <button class="btn-export-img" onclick="exportTableToImage()" id="btn-export">
-                  <i class="bi bi-camera-fill me-1"></i> แคปเจอร์รายงาน
+                <button class="btn-sm-custom btn-export-img" onclick="exportTableToImage()" id="btn-export">
+                  <i class="bi bi-camera-fill me-1"></i> แคปเจอร์
                 </button>
               </div>
             </div>
             
-            <div class="text-center pt-4 pb-2 px-3" id="report-header">
-              <h4 class="fw-bold mb-1" style="color: var(--thp-red);" id="report-title">รายงานสถานะหมุด</h4>
-              <p class="text-secondary mb-3" style="font-size: 0.95rem; font-weight: 500;" id="report-date"></p>
+            <div class="text-center pt-3 pb-2 px-3" id="report-header">
+              <h5 class="fw-bold mb-1" style="color: var(--thp-red);" id="report-title">รายงานสถานะปักหมุด</h5>
+              <p class="text-secondary mb-2" style="font-size: 0.85rem; font-weight: 500;" id="report-date"></p>
             </div>
 
             <div class="table-responsive" id="table-container">
-              <table class="table align-middle">
-                <thead class="text-center">
+              <table class="table align-middle text-center" id="capture-table">
+                <thead>
                   <tr id="tableHeaders">
                     <th colspan="8">กำลังเตรียมตารางข้อมูล...</th>
                   </tr>
                 </thead>
-                <tbody id="dataTable" class="text-center">
+                <tbody id="dataTable">
                   <tr>
-                    <td colspan="8" class="py-5 text-center bg-white">
+                    <td colspan="8" class="py-5 bg-white">
                       <div class="spinner-border text-danger" role="status"></div>
                       <div class="mt-2 text-muted fw-bold">กำลังซิงค์ข้อมูล...</div>
                     </td>
@@ -424,6 +372,27 @@
 
     <!-- Script สำหรับประมวลผล -->
     <script>
+      // 📌 ระบบ Mobile Sidebar
+      document.addEventListener('DOMContentLoaded', function() {
+        const sidebar = document.getElementById('sidebar');
+        const backdrop = document.getElementById('sidebarBackdrop');
+        const toggleBtn = document.getElementById('btnToggleSidebar');
+
+        function toggleSidebar() {
+          sidebar.classList.toggle('show');
+          if(sidebar.classList.contains('show')) {
+            backdrop.style.display = 'block';
+            setTimeout(() => backdrop.style.opacity = '1', 10);
+          } else {
+            backdrop.style.opacity = '0';
+            setTimeout(() => backdrop.style.display = 'none', 300);
+          }
+        }
+        toggleBtn.addEventListener('click', toggleSidebar);
+        backdrop.addEventListener('click', toggleSidebar);
+      });
+
+      // 📌 กราฟและการดึงข้อมูล
       google.charts.load('current', {'packages':['corechart']});
       var rawData = [];
       var sheetHeaders = [];
@@ -432,20 +401,18 @@
       const API_URL = "https://script.google.com/macros/s/AKfycbx44WDJzhWthzMU-qABgoDphLrEqvWquGu57nDa8wf42JV-mcK8IinKlKR-40YnF506eA/exec";
 
       window.onload = function() {
-        document.getElementById('current-date-display').innerHTML = 'ข้อมูลอัปเดตล่าสุด: ' + getThaiDate();
-        
+        document.getElementById('current-date-display').innerHTML = 'ข้อมูล ณ วันที่ ' + getThaiDate();
         fetch(API_URL)
           .then(response => response.json())
           .then(data => {
             rawData = data.records;
             sheetHeaders = data.headers;
-            
             buildTableHeaders(sheetHeaders);
             populateFilterDropdown();
             google.charts.setOnLoadCallback(updateDashboard);
           })
           .catch(error => {
-            console.error('Error fetching data:', error);
+            console.error('Error:', error);
             alert('เกิดข้อผิดพลาดในการดึงข้อมูลจากฐานข้อมูล');
           });
       };
@@ -473,13 +440,11 @@
       function populateFilterDropdown() {
         var filterValues = [...new Set(rawData.map(item => item.colC))];
         var select = document.getElementById('filterSelect');
-        
         filterValues.forEach(function(val) {
           var valStr = String(val); 
           if(valStr && valStr.trim() !== '') {
             var option = document.createElement('option');
-            option.value = valStr;
-            option.text = valStr;
+            option.value = valStr; option.text = valStr;
             select.appendChild(option);
           }
         });
@@ -490,98 +455,52 @@
         var progressVal = document.getElementById('progressFilter').value;
         var searchVal = document.getElementById('searchInput').value.toLowerCase().trim();
         var filteredData = rawData;
-        
         var reportTitle = document.getElementById('report-title');
-        var reportDate = document.getElementById('report-date');
         
-        // 1. กรองด้วย กลุ่ม ปจ. 
-        if (selectedVal !== 'all') {
-          filteredData = filteredData.filter(item => String(item.colC) === selectedVal);
-        }
-
-        // 2. กรองตามสถานะงาน
+        if (selectedVal !== 'all') filteredData = filteredData.filter(item => String(item.colC) === selectedVal);
         if (progressVal !== 'all') {
           filteredData = filteredData.filter(item => {
-            var total = parseNum(item.colD);
-            var completed = parseNum(item.colE);
-            var canceled = parseNum(item.colF);
-            var pending = parseNum(item.colG);
-            
-            if (progressVal === 'not_started') {
-              return completed === 0 && canceled === 0;
-            } else if (progressVal === 'completed') {
-              return pending === 0 && total > 0;
-            } else if (progressVal === 'in_progress') {
-              return (completed > 0 || canceled > 0) && pending > 0;
-            }
+            var total = parseNum(item.colD), completed = parseNum(item.colE), canceled = parseNum(item.colF), pending = parseNum(item.colG);
+            if (progressVal === 'not_started') return completed === 0 && canceled === 0;
+            else if (progressVal === 'completed') return pending === 0 && total > 0;
+            else if (progressVal === 'in_progress') return (completed > 0 || canceled > 0) && pending > 0;
             return true;
           });
         }
-
-        // 3. กรองต่อด้วยช่องพิมพ์ค้นหา 
         if (searchVal !== '') {
           filteredData = filteredData.filter(item => {
-            var colAStr = String(item.colA).toLowerCase();
-            var colBStr = String(item.colB).toLowerCase();
-            var colCStr = String(item.colC).toLowerCase();
-            return colAStr.includes(searchVal) || colBStr.includes(searchVal) || colCStr.includes(searchVal);
+            return String(item.colA).toLowerCase().includes(searchVal) || 
+                   String(item.colB).toLowerCase().includes(searchVal) || 
+                   String(item.colC).toLowerCase().includes(searchVal);
           });
         }
         
-        // อัปเดตหัวข้อรายงาน
-        if (progressVal === 'not_started') {
-          reportTitle.textContent = "รายงานสถานะปักหมุด: ที่ทำการที่ยังไม่ดำเนินการ (0%)";
-        } else if (searchVal !== '') {
-          reportTitle.textContent = "ผลการค้นหาสถานะปักหมุด: '" + document.getElementById('searchInput').value + "'";
-        } else if (selectedVal !== 'all') {
-          reportTitle.textContent = "รายงานสถานะปักหมุด: กลุ่ม ปจ. " + selectedVal;
-        } else {
-          reportTitle.textContent = "รายงานสถานะปักหมุด: ภาพรวมทั้งหมด";
-        }
-        
-        reportDate.innerHTML = 'ข้อมูล ณ วันที่ ' + getThaiDate();
+        if (progressVal === 'not_started') reportTitle.textContent = "สถานะปักหมุด: ที่ทำการที่ยังไม่ดำเนินการ (0%)";
+        else if (searchVal !== '') reportTitle.textContent = "ผลการค้นหา: '" + document.getElementById('searchInput').value + "'";
+        else if (selectedVal !== 'all') reportTitle.textContent = "สถานะปักหมุด: กลุ่ม ปจ. " + selectedVal;
+        else reportTitle.textContent = "รายงานสถานะปักหมุด: ภาพรวมทั้งหมด";
 
-        // สร้างข้อมูลสำหรับตาราง (ยุบรวมระดับจังหวัด)
         var tableDataToRender = filteredData;
-        
         if (selectedVal === 'all' && searchVal === '') {
           var groupedTable = {};
-          
-          // คำนวณยอดรวมของแต่ละกลุ่ม ปจ.
           filteredData.forEach(function(item) {
             var prov = String(item.colC);
-            if (!groupedTable[prov]) {
-              groupedTable[prov] = { total: 0, completed: 0, canceled: 0, pending: 0 };
-            }
+            if (!groupedTable[prov]) groupedTable[prov] = { total: 0, completed: 0, canceled: 0, pending: 0 };
             groupedTable[prov].total += parseNum(item.colD);
             groupedTable[prov].completed += parseNum(item.colE);
             groupedTable[prov].canceled += parseNum(item.colF);
             groupedTable[prov].pending += parseNum(item.colG);
           });
-
-          // แปลงกลับเป็น Array ให้ตารางเอาไปใช้งาน
           tableDataToRender = [];
           for (var prov in groupedTable) {
             var g = groupedTable[prov];
-            // คำนวณเปอร์เซ็นต์ความสำเร็จ
             var percent = g.total > 0 ? Math.round((g.completed / g.total) * 100) : 0;
-            
             tableDataToRender.push({
-              colA: '-', 
-              colB: 'กลุ่ม ' + prov, // 📌 แก้ไขตรงนี้: เปลี่ยนเป็นคำว่า "กลุ่ม" แล้วตามด้วยชื่อจังหวัด
-              colC: prov,
-              colD: g.total,
-              colE: g.completed,
-              colF: g.canceled,
-              colG: g.pending,
-              colH: percent + '%'
+              colA: '-', colB: 'กลุ่ม ' + prov, colC: prov,
+              colD: g.total, colE: g.completed, colF: g.canceled, colG: g.pending, colH: percent + '%'
             });
           }
-          
-          // จัดเรียงตามชื่อ ปจ.
-          tableDataToRender.sort(function(a, b) {
-            return a.colC.localeCompare(b.colC);
-          });
+          tableDataToRender.sort((a, b) => a.colC.localeCompare(b.colC));
         }
 
         drawCharts(filteredData, selectedVal); 
@@ -595,14 +514,11 @@
 
       var chartFontName = 'Sarabun';
 
-      // 📌 รับค่า selectedVal เข้ามาในฟังก์ชัน
       function drawCharts(data, selectedVal) {
         var sumTotal = 0, sumCompleted = 0, sumCanceled = 0, sumPending = 0;
         data.forEach(function(item) {
-          sumTotal += parseNum(item.colD);
-          sumCompleted += parseNum(item.colE); 
-          sumCanceled += parseNum(item.colF);  
-          sumPending += parseNum(item.colG);   
+          sumTotal += parseNum(item.colD); sumCompleted += parseNum(item.colE); 
+          sumCanceled += parseNum(item.colF); sumPending += parseNum(item.colG);   
         });
 
         document.getElementById('sum-total').textContent = sumTotal.toLocaleString();
@@ -610,109 +526,58 @@
         document.getElementById('sum-canceled').textContent = sumCanceled.toLocaleString();
         document.getElementById('sum-pending').textContent = sumPending.toLocaleString();
 
-        // กราฟแท่ง (100% Stacked)
         var barArray = [['ชื่อ', 'สำเร็จ', 'ยกเลิก', 'รอ']];
         var searchVal = document.getElementById('searchInput').value.trim();
 
-        // 📌 เช็คเงื่อนไข: ถ้าเป็น "ภาพรวมทั้งหมด" และไม่ได้พิมพ์ค้นหาอะไรอยู่ ให้รวมกลุ่มระดับจังหวัด
         if (selectedVal === 'all' && searchVal === '') {
           var groupedData = {};
-          
-          // วนลูปเพื่อนำยอดของแต่ละอำเภอมารวมกันตามจังหวัด
           data.forEach(function(item) {
             var prov = String(item.colC);
-            if (!groupedData[prov]) {
-              groupedData[prov] = { completed: 0, canceled: 0, pending: 0 };
-            }
+            if (!groupedData[prov]) groupedData[prov] = { completed: 0, canceled: 0, pending: 0 };
             groupedData[prov].completed += parseNum(item.colE);
             groupedData[prov].canceled += parseNum(item.colF);
             groupedData[prov].pending += parseNum(item.colG);
           });
-
-          // นำข้อมูลที่รวมแล้วใส่ลงกราฟ
-          for (var prov in groupedData) {
-            barArray.push([
-              prov, 
-              groupedData[prov].completed, 
-              groupedData[prov].canceled, 
-              groupedData[prov].pending
-            ]);
-          }
+          for (var prov in groupedData) barArray.push([prov, groupedData[prov].completed, groupedData[prov].canceled, groupedData[prov].pending]);
         } else {
-          // 📌 ถ้ามีการเลือกจังหวัดใดจังหวัดหนึ่ง หรือค้นหา ให้โชว์เป็นราย "ที่ทำการ" เหมือนเดิม
-          data.forEach(function(item) {
-            barArray.push([
-              String(item.colB), 
-              parseNum(item.colE), 
-              parseNum(item.colF), 
-              parseNum(item.colG)
-            ]);
-          });
+          data.forEach(item => barArray.push([String(item.colB), parseNum(item.colE), parseNum(item.colF), parseNum(item.colG)]));
         }
 
         var barData = google.visualization.arrayToDataTable(barArray);
         var wrapperWidth = document.getElementById('barchart-wrapper').clientWidth;
-        // ปรับความกว้างกราฟให้ยืดหยุ่นตามจำนวนแท่งข้อมูล (หักหัวตารางออก 1 บรรทัด)
-        var calculatedWidth = Math.max((barArray.length - 1) * 55, wrapperWidth - 20);
+        var calculatedWidth = Math.max((barArray.length - 1) * 45, wrapperWidth - 20);
 
         var barOptions = {
-          width: calculatedWidth,
-          colors: ['#1976d2', '#da251d', '#94a3b8'], 
-          isStacked: 'percent', 
-          focusTarget: 'category', /* แสดงข้อมูลทุกสถานะเมื่อเอาเมาส์ชี้ */
-          chartArea: { left: 50, right: 10, top: 30, bottom: 80 }, 
-          legend: { position: 'top', textStyle: { fontName: chartFontName, fontSize: 13, color: '#475569' } },
-          hAxis: { 
-            textStyle: { fontName: chartFontName, fontSize: 11, color: '#64748b' }, 
-            slantedText: true, slantedTextAngle: 45, showTextEvery: 1 
-          },
-          vAxis: { 
-            textStyle: { fontName: chartFontName, fontSize: 12, color: '#64748b' },
-            gridlines: { color: '#f1f5f9' },
-            format: '0%' 
-          },
-          tooltip: { textStyle: { fontName: chartFontName } },
-          bar: { groupWidth: '60%' }
+          width: calculatedWidth, colors: ['#1976d2', '#da251d', '#94a3b8'], 
+          isStacked: 'percent', focusTarget: 'category', 
+          chartArea: { left: 40, right: 10, top: 30, bottom: 60 }, 
+          legend: { position: 'top', textStyle: { fontName: chartFontName, fontSize: 12, color: '#475569' } },
+          hAxis: { textStyle: { fontName: chartFontName, fontSize: 10, color: '#64748b' }, slantedText: true, slantedTextAngle: 45, showTextEvery: 1 },
+          vAxis: { textStyle: { fontName: chartFontName, fontSize: 11, color: '#64748b' }, gridlines: { color: '#f1f5f9' }, format: '0%' },
+          tooltip: { textStyle: { fontName: chartFontName } }, bar: { groupWidth: '65%' }
         };
+        new google.visualization.ColumnChart(document.getElementById('barchart')).draw(barData, barOptions);
 
-        var barChart = new google.visualization.ColumnChart(document.getElementById('barchart'));
-        barChart.draw(barData, barOptions);
-
-        // กราฟวงกลม
         var pieData = google.visualization.arrayToDataTable([
-          ['สถานะ', 'จำนวน'],
-          ['สำเร็จ', sumCompleted],
-          ['ยกเลิก', sumCanceled],
-          ['รอ', sumPending]
+          ['สถานะ', 'จำนวน'], ['สำเร็จ', sumCompleted], ['ยกเลิก', sumCanceled], ['รอ', sumPending]
         ]);
-
         var pieOptions = {
-          colors: ['#1976d2', '#da251d', '#94a3b8'], 
-          pieHole: 0.5, 
-          chartArea: {width: '90%', height: '80%', top: 15}, 
-          legend: { position: 'bottom', alignment: 'center', textStyle: { fontName: chartFontName, fontSize: 13, color: '#475569' } },
-          tooltip: { textStyle: { fontName: chartFontName } },
-          pieSliceBorderColor: 'transparent'
+          colors: ['#1976d2', '#da251d', '#94a3b8'], pieHole: 0.55, 
+          chartArea: {width: '85%', height: '75%', top: 15}, 
+          legend: { position: 'bottom', alignment: 'center', textStyle: { fontName: chartFontName, fontSize: 12, color: '#475569' } },
+          tooltip: { textStyle: { fontName: chartFontName } }, pieSliceBorderColor: 'transparent'
         };
-
-        var pieChart = new google.visualization.PieChart(document.getElementById('piechart'));
-        pieChart.draw(pieData, pieOptions);
+        new google.visualization.PieChart(document.getElementById('piechart')).draw(pieData, pieOptions);
       }
 
       function updateTable(data) {
         var tbody = document.getElementById('dataTable');
         tbody.innerHTML = '';
-        
-        if(data.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="8" class="py-4 text-muted bg-white">ไม่พบข้อมูลที่ค้นหา</td></tr>';
-          return;
-        }
+        if(data.length === 0) { tbody.innerHTML = '<tr><td colspan="8" class="py-4 text-muted bg-white">ไม่พบข้อมูล</td></tr>'; return; }
 
         data.forEach(function(item, index) {
           var tr = document.createElement('tr');
           tr.className = index % 2 === 0 ? 'row-white' : 'row-gray';
-          
-          // เช็คว่ายังไม่ดำเนินการเลยหรือไม่ (0%) เพื่อแสดงป้ายเตือนสีแดงเข้ม
           var isNotStarted = parseNum(item.colE) === 0 && parseNum(item.colF) === 0;
           var percentBadge = isNotStarted 
               ? `<span class="badge-modern" style="background-color: var(--thp-red); color: white;">0%</span>` 
@@ -733,128 +598,70 @@
       }
 
       function exportTableToCSV() {
-        var selectedGroup = document.getElementById('filterSelect').value;
-        var progressVal = document.getElementById('progressFilter').value;
-        var searchVal = document.getElementById('searchInput').value.trim();
-        var fileName = 'รายงานหมุด';
+        var fileName = 'รายงานหมุด.csv'; // ย่อชื่อให้สั้นลง
+        var csv = [sheetHeaders.map(h => '"' + String(h).replace(/"/g, '""') + '"').join(',')];
         
-        if (progressVal === 'not_started') fileName += '_ยังไม่ดำเนินการ';
-        else if (selectedGroup !== 'all') fileName += '_' + selectedGroup;
-        
-        if (searchVal !== '') fileName += '_ค้นหา-' + searchVal;
-        fileName += '.csv';
-        
-        var currentData = rawData;
-        
-        // จำลองการกรองข้อมูลก่อน Export ให้เหมือนบนตาราง
-        if (selectedGroup !== 'all') {
-          currentData = currentData.filter(item => String(item.colC) === selectedGroup);
-        }
-        if (progressVal !== 'all') {
-          currentData = currentData.filter(item => {
-            var total = parseNum(item.colD), completed = parseNum(item.colE);
-            var canceled = parseNum(item.colF), pending = parseNum(item.colG);
-            if (progressVal === 'not_started') return completed === 0 && canceled === 0;
-            else if (progressVal === 'completed') return pending === 0 && total > 0;
-            else if (progressVal === 'in_progress') return (completed > 0 || canceled > 0) && pending > 0;
-            return true;
-          });
-        }
-        if (searchVal !== '') {
-          var searchLower = searchVal.toLowerCase();
-          currentData = currentData.filter(item => {
-            return String(item.colA).toLowerCase().includes(searchLower) || 
-                   String(item.colB).toLowerCase().includes(searchLower) || 
-                   String(item.colC).toLowerCase().includes(searchLower);
-          });
-        }
-
-        var csv = [];
-        var headerRow = sheetHeaders.map(function(head) {
-          return '"' + String(head).replace(/"/g, '""') + '"';
-        });
-        csv.push(headerRow.join(','));
-
-        currentData.forEach(function(item) {
-          var row = [
-            item.colA || '', item.colB || '', item.colC || '',
-            item.colD || 0, item.colE || 0, item.colF || 0,
-            item.colG || 0, item.colH || '0%'
-          ];
-          var csvRow = row.map(function(cell) {
-            var cellStr = String(cell);
-            if (cellStr.includes(',') || cellStr.includes('"') || cellStr.includes('\n')) {
-              return '"' + cellStr.replace(/"/g, '""') + '"';
-            }
-            return cellStr;
-          });
-          csv.push(csvRow.join(','));
+        rawData.forEach(function(item) {
+          var row = [item.colA||'', item.colB||'', item.colC||'', item.colD||0, item.colE||0, item.colF||0, item.colG||0, item.colH||'0%'];
+          csv.push(row.map(cell => '"' + String(cell).replace(/"/g, '""') + '"').join(','));
         });
 
-        var csvString = "\uFEFF" + csv.join('\n');
-        var blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+        var blob = new Blob(["\uFEFF" + csv.join('\n')], { type: 'text/csv;charset=utf-8;' });
         var link = document.createElement("a");
-        var url = URL.createObjectURL(blob);
-        
-        link.setAttribute("href", url);
-        link.setAttribute("download", fileName);
-        link.style.visibility = 'hidden';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        link.href = URL.createObjectURL(blob);
+        link.download = fileName; link.click();
       }
 
       function exportTableToImage() {
         var btn = document.getElementById('btn-export');
         var exportSection = document.getElementById('export-section');
         var tableContainer = document.getElementById('table-container');
+        var captureTable = document.getElementById('capture-table');
         
-        var selectedGroup = document.getElementById('filterSelect').value;
-        var progressVal = document.getElementById('progressFilter').value;
-        var searchVal = document.getElementById('searchInput').value.trim();
-        var fileName = 'รายงานหมุด';
-        
-        if (progressVal === 'not_started') fileName += '_ยังไม่ดำเนินการ';
-        else if (selectedGroup !== 'all') fileName += '_' + selectedGroup;
-        if (searchVal !== '') fileName += '_ค้นหา-' + searchVal;
-        fileName += '.png';
-
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> กำลังประมวลผล...';
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>...';
         btn.classList.add('disabled');
 
+        // เก็บค่าดั้งเดิมไว้
         var originalMaxHeight = tableContainer.style.maxHeight;
-        var originalOverflow = tableContainer.style.overflowY;
+        var originalOverflowY = tableContainer.style.overflowY;
+        var originalOverflowX = tableContainer.style.overflowX;
         var originalShadow = exportSection.style.boxShadow;
         
+        // 📌 แก้บั๊กแคปเจอร์ภาพตารางบนมือถือไม่เต็ม (ปลดล็อก Overflow และบังคับขยายให้เต็ม Width)
         tableContainer.style.maxHeight = 'none';
         tableContainer.style.overflowY = 'visible';
+        tableContainer.style.overflowX = 'visible';
         exportSection.style.boxShadow = 'none'; 
+        
+        var fullWidth = captureTable.offsetWidth; // วัดขนาดความกว้างที่แท้จริงของตาราง
 
         setTimeout(function() {
           html2canvas(exportSection, {
             scale: 2, 
             backgroundColor: '#ffffff',
-            useCORS: true 
+            useCORS: true,
+            width: fullWidth + 30, // ขยาย Canvas ให้พอดีกับตาราง
+            windowWidth: fullWidth + 30 // จำลองหน้าจอให้กว้างขึ้นชั่วคราว
           }).then(function(canvas) {
-            tableContainer.style.maxHeight = originalMaxHeight || '500px';
-            tableContainer.style.overflowY = originalOverflow || 'auto';
-            exportSection.style.boxShadow = originalShadow || '0 8px 25px -8px rgba(0,0,0,0.08)';
+            // คืนค่า CSS กลับเป็นเหมือนเดิม
+            tableContainer.style.maxHeight = originalMaxHeight || '450px';
+            tableContainer.style.overflowY = originalOverflowY || 'auto';
+            tableContainer.style.overflowX = originalOverflowX || 'auto';
+            exportSection.style.boxShadow = originalShadow || '0 4px 15px -3px rgba(0,0,0,0.05)';
             
-            btn.innerHTML = '<i class="bi bi-camera-fill me-1"></i> แคปเจอร์รายงาน';
+            btn.innerHTML = '<i class="bi bi-camera-fill me-1"></i> แคปเจอร์';
             btn.classList.remove('disabled');
 
             var link = document.createElement('a');
-            link.download = fileName;
+            link.download = 'รายงานสถานะหมุด.png';
             link.href = canvas.toDataURL('image/png');
             link.click();
           }).catch(function(err) {
             alert('เกิดข้อผิดพลาด: ' + err);
-            btn.innerHTML = '<i class="bi bi-camera-fill me-1"></i> แคปเจอร์รายงาน';
             btn.classList.remove('disabled');
-            tableContainer.style.maxHeight = originalMaxHeight || '500px';
-            tableContainer.style.overflowY = originalOverflow || 'auto';
+            tableContainer.style.overflowX = originalOverflowX || 'auto';
           });
-        }, 400);
+        }, 500);
       }
     </script>
   </body>
