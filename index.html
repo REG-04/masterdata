@@ -217,8 +217,8 @@
         </li>
       </ul>
 
-      <!-- ส่วนควบคุมตัวกรองและค้นหา -->
-      <div class="sidebar-filter mt-auto mb-3">
+      <!-- ส่วนควบคุมตัวกรองและค้นหา ย้ายมาติดใต้เมนูทันที -->
+      <div class="sidebar-filter mb-3">
         <label for="searchInput" class="filter-label"><i class="bi bi-search"></i> ค้นหาชื่อที่ทำการ / รหัส</label>
         <input type="text" id="searchInput" class="form-control form-input-custom" placeholder="พิมพ์คำค้นหา..." onkeyup="updateDashboard()">
 
@@ -393,7 +393,6 @@
       var rawData = [];
       var sheetHeaders = [];
 
-      // ฟังก์ชันแปลงตัวเลข (ลบลูกน้ำ และ %)
       function parseNum(val) {
         if(!val) return 0;
         return Number(val.toString().replace(/,/g, '').replace(/%/g, '').trim()) || 0;
@@ -407,15 +406,12 @@
         fetch(API_URL)
           .then(response => response.json())
           .then(data => {
-            
-            // 📌 1. บังคับคำนวณ % ให้มีทศนิยม 2 ตำแหน่งทุกรายการตั้งแต่ดึงข้อมูลมา
             rawData = data.records.map(item => {
                var total = parseNum(item.colD);
                var completed = parseNum(item.colE);
                item.colH = total > 0 ? ((completed / total) * 100).toFixed(2) + '%' : '0.00%';
                return item;
             });
-            
             sheetHeaders = data.headers;
             buildTableHeaders(sheetHeaders);
             populateFilterDropdown();
@@ -505,7 +501,6 @@
           tableDataToRender = [];
           for (var prov in groupedTable) {
             var g = groupedTable[prov];
-            // 📌 2. บังคับคำนวณ % สำหรับแบบรวมกลุ่มให้มี 2 ทศนิยม
             var percent = g.total > 0 ? ((g.completed / g.total) * 100).toFixed(2) : "0.00";
             tableDataToRender.push({
               colA: '-', colB: 'กลุ่ม ' + prov, colC: prov,
@@ -587,7 +582,6 @@
           tr.className = index % 2 === 0 ? 'row-white' : 'row-gray';
           var isNotStarted = parseNum(item.colE) === 0 && parseNum(item.colF) === 0;
           
-          // 📌 3. แสดง 0.00% อย่างชัดเจน
           var percentBadge = isNotStarted 
               ? `<span class="badge-modern" style="background-color: var(--thp-red); color: white;">0.00%</span>` 
               : `<span class="badge-modern badge-blue">${item.colH}</span>`;
@@ -611,7 +605,6 @@
         var csv = [sheetHeaders.map(h => '"' + String(h).replace(/"/g, '""') + '"').join(',')];
         
         rawData.forEach(function(item) {
-          // ใน rawData มีค่า colH ที่แปลงเป็น ทศนิยม 2 ตำแหน่งเรียบร้อยแล้ว
           var row = [item.colA||'', item.colB||'', item.colC||'', item.colD||0, item.colE||0, item.colF||0, item.colG||0, item.colH];
           csv.push(row.map(cell => '"' + String(cell).replace(/"/g, '""') + '"').join(','));
         });
@@ -628,44 +621,61 @@
         var tableContainer = document.getElementById('table-container');
         var captureTable = document.getElementById('capture-table');
         
+        var selectedGroup = document.getElementById('filterSelect').value;
+        var progressVal = document.getElementById('progressFilter').value;
+        var searchVal = document.getElementById('searchInput').value.trim();
+        var fileName = 'รายงานหมุด';
+        
+        if (progressVal === 'not_started') fileName += '_ยังไม่ดำเนินการ';
+        else if (selectedGroup !== 'all') fileName += '_' + selectedGroup;
+        if (searchVal !== '') fileName += '_ค้นหา-' + searchVal;
+        fileName += '.png';
+
         btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>...';
         btn.classList.add('disabled');
 
+        // 📌 1. เก็บค่า CSS ดั้งเดิมไว้ก่อน
         var originalMaxHeight = tableContainer.style.maxHeight;
         var originalOverflowY = tableContainer.style.overflowY;
         var originalOverflowX = tableContainer.style.overflowX;
         var originalShadow = exportSection.style.boxShadow;
+        var originalWidth = exportSection.style.width; // เก็บความกว้างเดิม
         
+        // 📌 2. ปลดล็อก Overflow และขยายการ์ดให้กว้างเท่าตารางจริงๆ
         tableContainer.style.maxHeight = 'none';
         tableContainer.style.overflowY = 'visible';
         tableContainer.style.overflowX = 'visible';
         exportSection.style.boxShadow = 'none'; 
         
-        var fullWidth = captureTable.offsetWidth; 
+        var fullWidth = captureTable.scrollWidth; 
+        exportSection.style.width = fullWidth + 'px'; // บังคับการ์ดยืดให้สุดตาราง
 
+        // 📌 3. รอให้หน้าจอขยายเสร็จแล้วค่อยแคปเจอร์
         setTimeout(function() {
           html2canvas(exportSection, {
             scale: 2, 
             backgroundColor: '#ffffff',
-            useCORS: true,
-            width: fullWidth + 30, 
-            windowWidth: fullWidth + 30 
+            useCORS: true
           }).then(function(canvas) {
+            // 📌 4. คืนค่า CSS กลับเป็นเหมือนเดิมให้หน้าจอปกติ
             tableContainer.style.maxHeight = originalMaxHeight || '450px';
             tableContainer.style.overflowY = originalOverflowY || 'auto';
             tableContainer.style.overflowX = originalOverflowX || 'auto';
             exportSection.style.boxShadow = originalShadow || '0 4px 15px -3px rgba(0,0,0,0.05)';
+            exportSection.style.width = originalWidth || ''; // คืนค่าความกว้าง
             
             btn.innerHTML = '<i class="bi bi-camera-fill me-1"></i> แคปเจอร์';
             btn.classList.remove('disabled');
 
             var link = document.createElement('a');
-            link.download = 'รายงานสถานะหมุด.png';
+            link.download = fileName;
             link.href = canvas.toDataURL('image/png');
             link.click();
           }).catch(function(err) {
             alert('เกิดข้อผิดพลาด: ' + err);
+            btn.innerHTML = '<i class="bi bi-camera-fill me-1"></i> แคปเจอร์';
             btn.classList.remove('disabled');
+            exportSection.style.width = originalWidth || ''; // คืนค่าแม้จะเกิด Error
             tableContainer.style.overflowX = originalOverflowX || 'auto';
           });
         }, 500);
