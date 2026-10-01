@@ -432,10 +432,44 @@
       function updateTableOverview(data) {
         var tb = document.getElementById('dataTable'); tb.innerHTML = '';
         if(data.length===0) { tb.innerHTML='<tr><td colspan="8" class="py-4 text-muted bg-white">ไม่พบข้อมูล</td></tr>'; return; }
+        
+        var sumTotal = 0, sumCompleted = 0, sumCanceled = 0, sumPending = 0;
+
+        // สร้างตารางข้อมูลทีละบรรทัด พร้อมกับบวกเลขยอดสะสม
         data.forEach((i, idx) => {
-          var bg = parseNum(i.colE)===0&&parseNum(i.colF)===0 ? 'background-color: var(--thp-red); color: white;' : '';
-          tb.innerHTML += `<tr class="${idx%2===0?'row-white':'row-gray'}"><td class="text-slate-500">${i.colA||'-'}</td><td class="fw-bold text-start text-dark">${i.colB||'-'}</td><td class="text-slate-500">${i.colC||'-'}</td><td class="fw-bold text-primary">${i.colD||0}</td><td><span class="badge-modern badge-blue">${i.colE||0}</span></td><td><span class="badge-modern badge-red">${i.colF||0}</span></td><td><span class="badge-modern badge-gray">${i.colG||0}</span></td><td><span class="badge-modern badge-blue" style="${bg}">${i.colH}</span></td></tr>`;
+          sumTotal += parseNum(i.colD);
+          sumCompleted += parseNum(i.colE);
+          sumCanceled += parseNum(i.colF);
+          sumPending += parseNum(i.colG);
+
+          var bg = parseNum(i.colE)===0 && parseNum(i.colF)===0 ? 'background-color: var(--thp-red); color: white;' : '';
+          
+          tb.innerHTML += `<tr class="${idx%2===0?'row-white':'row-gray'}">
+            <td class="text-slate-500">${i.colA||'-'}</td>
+            <td class="fw-bold text-start text-dark">${i.colB||'-'}</td>
+            <td class="text-slate-500">${i.colC||'-'}</td>
+            <td class="fw-bold text-primary">${parseNum(i.colD).toLocaleString()}</td>
+            <td><span class="badge-modern badge-blue">${parseNum(i.colE).toLocaleString()}</span></td>
+            <td><span class="badge-modern badge-red">${parseNum(i.colF).toLocaleString()}</span></td>
+            <td><span class="badge-modern badge-gray">${parseNum(i.colG).toLocaleString()}</span></td>
+            <td><span class="badge-modern badge-blue" style="${bg}">${i.colH}</span></td>
+          </tr>`;
         });
+
+        // คำนวณเปอร์เซ็นต์ของยอดรวมทั้งหมด
+        var totalPct = sumTotal > 0 ? ((sumCompleted / sumTotal) * 100).toFixed(2) + "%" : "0.00%";
+
+        // 📌 สร้างแถว "รวมทั้งสิ้น" สไตล์ใหม่ (มีสีสันตามสถานะตัวเลข)
+        tb.innerHTML += `<tr style="background-color: #fff9f5; border-top: 2px solid var(--thp-red); box-shadow: 0 -4px 10px rgba(0,0,0,0.03);">
+          <td colspan="3" class="fw-bold text-end pe-4" style="color: var(--thp-red); font-size: 1.05rem;">
+            <i class="bi bi-bar-chart-fill me-1"></i> รวมทั้งสิ้น
+          </td>
+          <td class="fw-bold" style="color: var(--thp-blue); font-size: 1.05rem;">${sumTotal.toLocaleString()}</td>
+          <td class="fw-bold" style="color: #16a34a; font-size: 1.05rem;">${sumCompleted.toLocaleString()}</td>
+          <td class="fw-bold" style="color: var(--thp-red); font-size: 1.05rem;">${sumCanceled.toLocaleString()}</td>
+          <td class="fw-bold" style="color: #ea580c; font-size: 1.05rem;">${sumPending.toLocaleString()}</td>
+          <td class="fw-bold" style="color: #16a34a; font-size: 1.1rem;">${totalPct}</td>
+        </tr>`;
       }
 
       // ================= COMPARE DASHBOARD =================
