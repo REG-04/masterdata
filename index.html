@@ -519,7 +519,6 @@
         var gb = {}, gt = {};
         var groupKey = (selGroup === 'all') ? 'colC' : 'colB'; 
         
-        // 📌 เก็บ colA (รหัสที่ทำการ) เอาไว้ใช้จัดเรียงตอนดูราย ปจ. ด้วย
         bData.forEach(i => { var p = String(i[groupKey]); if(!gb[p]) gb[p]={t:0,c:0,w:0, colA: i.colA}; gb[p].t+=parseNum(i.colD); gb[p].c+=parseNum(i.colE); gb[p].w+=parseNum(i.colG); });
         tData.forEach(i => { var p = String(i[groupKey]); if(!gt[p]) gt[p]={t:0,c:0,w:0, colA: i.colA}; gt[p].t+=parseNum(i.colD); gt[p].c+=parseNum(i.colE); gt[p].w+=parseNum(i.colG); });
 
@@ -543,7 +542,6 @@
 
         var chartCategoryName = (selGroup === 'all') ? 'กลุ่ม ปจ.' : 'ที่ทำการ';
         
-        // 📌 แปลง Object ให้เป็น Array เพื่อเอามาเรียงลำดับ
         var compareList = [];
         for(var p in gt) {
           if(!gb[p]) continue;
@@ -557,27 +555,22 @@
             bPct: bPct, 
             tPct: tPct, 
             dc: gt[p].c - gb[p].c, 
-            dp: tPct - bPct // dp คือ ส่วนต่างเปอร์เซ็นต์
+            dp: tPct - bPct 
           });
         }
         
-        // 📌 แยกการเรียงลำดับอย่างชัดเจน
         if (selGroup === 'all') {
-          // ถ้าดู "ภาพรวมกลุ่ม ปจ." -> เรียงตาม ส่วนต่างเปอร์เซ็นต์ (จากมากไปน้อย)
           compareList.sort((a, b) => b.dp - a.dp); 
         } else {
-          // ถ้าดู "รายกลุ่ม ปจ. (เช่น ขอนแก่น)" -> เรียงตาม รหัสที่ทำการ (จากน้อยไปมาก)
           compareList.sort((a, b) => String(a.colA).localeCompare(String(b.colA), 'th', {numeric: true}));
         }
 
-        // วาดกราฟ
         var cArr = [[chartCategoryName, 'อดีต ('+bDate+')', 'ปัจจุบัน']];
         compareList.forEach(item => cArr.push([item.name, item.b_c, item.t_c]));
         
         var cw = Math.max((cArr.length-1)*60, document.getElementById('comp-barchart-wrapper').clientWidth-20);
         new google.visualization.ColumnChart(document.getElementById('comp-barchart')).draw(google.visualization.arrayToDataTable(cArr), { width: cw, colors: ['#94a3b8', '#1976d2'], chartArea: { left:40, right:10, top:30, bottom:60 }, legend: {position: 'top'}, hAxis: {slantedText: true, slantedTextAngle: 45} });
 
-        // วาดตาราง
         var tableTitle = (selGroup === 'all') ? 'ตารางวิเคราะห์ผลงาน (กลุ่ม ปจ.)' : 'ตารางวิเคราะห์ผลงาน (รายที่ทำการ กลุ่ม ' + selGroup + ')';
         document.getElementById('comp-table-title-text').innerHTML = '<i class="bi bi-table"></i> ' + tableTitle;
         document.getElementById('comp-report-title').innerText = tableTitle;
@@ -590,20 +583,21 @@
 
         var tb = document.getElementById('comp-dataTable'); tb.innerHTML = '';
         compareList.forEach(item => {
-          var sc = item.dc>0 ? `<span class="text-success fw-bold">▲ +${item.dc.toLocaleString()}</span>` : (item.dc<0?`<span class="text-danger fw-bold">▼ ${item.dc.toLocaleString()}</span>`:'-');
-          var sp = item.dp>0 ? `<span class="text-success fw-bold">▲ +${item.dp.toFixed(2)}%</span>` : (item.dp<0?`<span class="text-danger fw-bold">▼ ${item.dp.toFixed(2)}%</span>`:'-');
+          // 📌 เปลี่ยน 0 ให้เป็นสีแดง
+          var sc = item.dc>0 ? `<span class="text-success fw-bold">▲ +${item.dc.toLocaleString()}</span>` : (item.dc<0?`<span class="text-danger fw-bold">▼ ${item.dc.toLocaleString()}</span>`:'<span class="text-danger fw-bold">0</span>');
+          var sp = item.dp>0 ? `<span class="text-success fw-bold">▲ +${item.dp.toFixed(2)}%</span>` : (item.dp<0?`<span class="text-danger fw-bold">▼ ${item.dp.toFixed(2)}%</span>`:'<span class="text-danger fw-bold">0.00%</span>');
           
           tb.innerHTML += `<tr><td class="fw-bold">${item.name}</td><td>${item.bPct.toFixed(2)}%</td><td class="fw-bold text-primary">${item.tPct.toFixed(2)}%</td><td>${sc}</td><td>${sp}</td></tr>`;
         });
 
-        // 📌 เพิ่มแถวรวมทั้งสิ้นให้กับหน้าเปรียบเทียบ
         var totalBPct = tB > 0 ? (cB / tB) * 100 : 0;
         var totalTPct = tT > 0 ? (cT / tT) * 100 : 0;
         var totalDc = cT - cB;
         var totalDp = totalTPct - totalBPct;
         
-        var tsc = totalDc>0 ? `<span class="text-success fw-bold">▲ +${totalDc.toLocaleString()}</span>` : (totalDc<0?`<span class="text-danger fw-bold">▼ ${totalDc.toLocaleString()}</span>`:'-');
-        var tsp = totalDp>0 ? `<span class="text-success fw-bold">▲ +${totalDp.toFixed(2)}%</span>` : (totalDp<0?`<span class="text-danger fw-bold">▼ ${totalDp.toFixed(2)}%</span>`:'-');
+        // 📌 เปลี่ยน 0 ให้เป็นสีแดง ในแถวรวมด้านล่าง
+        var tsc = totalDc>0 ? `<span class="text-success fw-bold">▲ +${totalDc.toLocaleString()}</span>` : (totalDc<0?`<span class="text-danger fw-bold">▼ ${totalDc.toLocaleString()}</span>`:'<span class="text-danger fw-bold">0</span>');
+        var tsp = totalDp>0 ? `<span class="text-success fw-bold">▲ +${totalDp.toFixed(2)}%</span>` : (totalDp<0?`<span class="text-danger fw-bold">▼ ${totalDp.toFixed(2)}%</span>`:'<span class="text-danger fw-bold">0.00%</span>');
 
         tb.innerHTML += `<tr style="background-color: #e3f2fd; border-top: 3px solid var(--thp-blue); border-bottom: 2px solid var(--thp-blue);">
           <td class="fw-bold text-center" style="color: var(--thp-blue); font-size: 1.05rem;">
