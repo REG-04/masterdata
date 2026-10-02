@@ -408,10 +408,19 @@
         var tData = fData;
         if (sel === 'all' && search === '') {
           var g = {}; fData.forEach(i => { var p = String(i.colC); if(!g[p]) g[p]={t:0,c:0,x:0,w:0}; g[p].t+=parseNum(i.colD); g[p].c+=parseNum(i.colE); g[p].x+=parseNum(i.colF); g[p].w+=parseNum(i.colG); });
-          tData = Object.keys(g).map(p => { var pct = g[p].t>0 ? ((g[p].c/g[p].t)*100).toFixed(2) : "0.00"; return {colA:'-', colB:'กลุ่ม '+p, colC:p, colD:g[p].t, colE:g[p].c, colF:g[p].x, colG:g[p].w, colH:pct+'%'} });
-          tData.sort((a,b) => a.colC.localeCompare(b.colC));
+          tData = Object.keys(g).map(p => { 
+            var pctVal = g[p].t>0 ? (g[p].c/g[p].t)*100 : 0;
+            return {colA:'-', colB:'กลุ่ม '+p, colC:p, colD:g[p].t, colE:g[p].c, colF:g[p].x, colG:g[p].w, colH:pctVal.toFixed(2)+'%', pctVal: pctVal}; 
+          });
+          // 📌 1. ภาพรวมทั้งหมด: เรียงเปอร์เซ็นต์ความสำเร็จจากมากไปน้อย
+          tData.sort((a,b) => b.pctVal - a.pctVal);
+        } else {
+          // 📌 2. รายกลุ่ม ปจ.: เรียงตามรหัสที่ทำการ (คอลัมน์ A) 
+          tData.sort((a, b) => String(a.colA).localeCompare(String(b.colA), 'th', {numeric: true}));
         }
-        drawChartsOverview(fData, sel, search); updateTableOverview(tData);
+        
+        drawChartsOverview(fData, sel, search); 
+        updateTableOverview(tData);
       }
 
       function drawChartsOverview(data, sel, search) {
@@ -420,9 +429,20 @@
         
         var bArr = [['ชื่อ', 'สำเร็จ', 'ยกเลิก', 'รอ']];
         if (sel === 'all' && search === '') {
-          var g = {}; data.forEach(i => { var p = String(i.colC); if(!g[p]) g[p]={c:0,x:0,w:0}; g[p].c+=parseNum(i.colE); g[p].x+=parseNum(i.colF); g[p].w+=parseNum(i.colG); });
-          for(var p in g) bArr.push([p, g[p].c, g[p].x, g[p].w]);
-        } else { data.forEach(i => bArr.push([String(i.colB), parseNum(i.colE), parseNum(i.colF), parseNum(i.colG)])); }
+          var g = {}; data.forEach(i => { var p = String(i.colC); if(!g[p]) g[p]={t:0, c:0, x:0, w:0}; g[p].t+=parseNum(i.colD); g[p].c+=parseNum(i.colE); g[p].x+=parseNum(i.colF); g[p].w+=parseNum(i.colG); });
+          
+          var sortedGroups = Object.keys(g).map(p => {
+             return { name: p, c: g[p].c, x: g[p].x, w: g[p].w, pct: g[p].t>0 ? (g[p].c/g[p].t)*100 : 0 };
+          });
+          // 📌 เรียงกราฟภาพรวม: ให้ตรงกับตาราง (มากไปน้อย)
+          sortedGroups.sort((a,b) => b.pct - a.pct);
+          sortedGroups.forEach(item => bArr.push([item.name, item.c, item.x, item.w]));
+          
+        } else { 
+          // 📌 เรียงกราฟราย ปจ.: ให้เรียงตามรหัสที่ทำการ
+          var sortedData = [...data].sort((a, b) => String(a.colA).localeCompare(String(b.colA), 'th', {numeric: true}));
+          sortedData.forEach(i => bArr.push([String(i.colB), parseNum(i.colE), parseNum(i.colF), parseNum(i.colG)])); 
+        }
         
         var cw = Math.max((bArr.length-1)*45, document.getElementById('barchart-wrapper').clientWidth-20);
         new google.visualization.ColumnChart(document.getElementById('barchart')).draw(google.visualization.arrayToDataTable(bArr), { width: cw, colors: ['#1976d2', '#da251d', '#94a3b8'], isStacked: 'percent', focusTarget: 'category', chartArea: { left:40, right:10, top:30, bottom:60 }, legend: {position: 'top'}, hAxis: {slantedText: true, slantedTextAngle: 45} });
@@ -499,8 +519,9 @@
         var gb = {}, gt = {};
         var groupKey = (selGroup === 'all') ? 'colC' : 'colB'; 
         
-        bData.forEach(i => { var p = String(i[groupKey]); if(!gb[p]) gb[p]={t:0,c:0,w:0}; gb[p].t+=parseNum(i.colD); gb[p].c+=parseNum(i.colE); gb[p].w+=parseNum(i.colG); });
-        tData.forEach(i => { var p = String(i[groupKey]); if(!gt[p]) gt[p]={t:0,c:0,w:0}; gt[p].t+=parseNum(i.colD); gt[p].c+=parseNum(i.colE); gt[p].w+=parseNum(i.colG); });
+        // 📌 เก็บ colA (รหัสที่ทำการ) เอาไว้ใช้จัดเรียงตอนดูราย ปจ. ด้วย
+        bData.forEach(i => { var p = String(i[groupKey]); if(!gb[p]) gb[p]={t:0,c:0,w:0, colA: i.colA}; gb[p].t+=parseNum(i.colD); gb[p].c+=parseNum(i.colE); gb[p].w+=parseNum(i.colG); });
+        tData.forEach(i => { var p = String(i[groupKey]); if(!gt[p]) gt[p]={t:0,c:0,w:0, colA: i.colA}; gt[p].t+=parseNum(i.colD); gt[p].c+=parseNum(i.colE); gt[p].w+=parseNum(i.colG); });
 
         var tB=0, cB=0, wB=0, tT=0, cT=0, wT=0;
         for(var k in gb) { tB+=gb[k].t; cB+=gb[k].c; wB+=gb[k].w; }
@@ -521,11 +542,42 @@
         document.getElementById('comp-chart-title').innerHTML = '<h6><i class="bi bi-bar-chart-fill"></i> ' + chartTitle + '</h6>';
 
         var chartCategoryName = (selGroup === 'all') ? 'กลุ่ม ปจ.' : 'ที่ทำการ';
+        
+        // 📌 แปลง Object ให้เป็น Array เพื่อเอามาเรียงลำดับ
+        var compareList = [];
+        for(var p in gt) {
+          if(!gb[p]) continue;
+          var bPct = gb[p].t > 0 ? (gb[p].c / gb[p].t) * 100 : 0;
+          var tPct = gt[p].t > 0 ? (gt[p].c / gt[p].t) * 100 : 0;
+          compareList.push({
+            name: p, 
+            colA: gt[p].colA, 
+            b_c: gb[p].c, 
+            t_c: gt[p].c,
+            bPct: bPct, 
+            tPct: tPct, 
+            dc: gt[p].c - gb[p].c, 
+            dp: tPct - bPct // dp คือ ส่วนต่างเปอร์เซ็นต์
+          });
+        }
+        
+        // 📌 แยกการเรียงลำดับอย่างชัดเจน
+        if (selGroup === 'all') {
+          // ถ้าดู "ภาพรวมกลุ่ม ปจ." -> เรียงตาม ส่วนต่างเปอร์เซ็นต์ (จากมากไปน้อย)
+          compareList.sort((a, b) => b.dp - a.dp); 
+        } else {
+          // ถ้าดู "รายกลุ่ม ปจ. (เช่น ขอนแก่น)" -> เรียงตาม รหัสที่ทำการ (จากน้อยไปมาก)
+          compareList.sort((a, b) => String(a.colA).localeCompare(String(b.colA), 'th', {numeric: true}));
+        }
+
+        // วาดกราฟ
         var cArr = [[chartCategoryName, 'อดีต ('+bDate+')', 'ปัจจุบัน']];
-        for(var p in gt) { if(gb[p]) cArr.push([p, gb[p].c, gt[p].c]); }
+        compareList.forEach(item => cArr.push([item.name, item.b_c, item.t_c]));
+        
         var cw = Math.max((cArr.length-1)*60, document.getElementById('comp-barchart-wrapper').clientWidth-20);
         new google.visualization.ColumnChart(document.getElementById('comp-barchart')).draw(google.visualization.arrayToDataTable(cArr), { width: cw, colors: ['#94a3b8', '#1976d2'], chartArea: { left:40, right:10, top:30, bottom:60 }, legend: {position: 'top'}, hAxis: {slantedText: true, slantedTextAngle: 45} });
 
+        // วาดตาราง
         var tableTitle = (selGroup === 'all') ? 'ตารางวิเคราะห์ผลงาน (กลุ่ม ปจ.)' : 'ตารางวิเคราะห์ผลงาน (รายที่ทำการ กลุ่ม ' + selGroup + ')';
         document.getElementById('comp-table-title-text').innerHTML = '<i class="bi bi-table"></i> ' + tableTitle;
         document.getElementById('comp-report-title').innerText = tableTitle;
@@ -537,19 +589,12 @@
         document.getElementById('comp-table-header-name').innerText = chartCategoryName;
 
         var tb = document.getElementById('comp-dataTable'); tb.innerHTML = '';
-        for(var p in gt) {
-          if(!gb[p]) continue;
+        compareList.forEach(item => {
+          var sc = item.dc>0 ? `<span class="text-success fw-bold">▲ +${item.dc.toLocaleString()}</span>` : (item.dc<0?`<span class="text-danger fw-bold">▼ ${item.dc.toLocaleString()}</span>`:'-');
+          var sp = item.dp>0 ? `<span class="text-success fw-bold">▲ +${item.dp.toFixed(2)}%</span>` : (item.dp<0?`<span class="text-danger fw-bold">▼ ${item.dp.toFixed(2)}%</span>`:'-');
           
-          var bPct = gb[p].t > 0 ? (gb[p].c / gb[p].t) * 100 : 0;
-          var tPct = gt[p].t > 0 ? (gt[p].c / gt[p].t) * 100 : 0;
-          var dc = gt[p].c - gb[p].c;
-          var dp = tPct - bPct; 
-          
-          var sc = dc>0 ? `<span class="text-success fw-bold">▲ +${dc.toLocaleString()}</span>` : (dc<0?`<span class="text-danger fw-bold">▼ ${dc.toLocaleString()}</span>`:'-');
-          var sp = dp>0 ? `<span class="text-success fw-bold">▲ +${dp.toFixed(2)}%</span>` : (dp<0?`<span class="text-danger fw-bold">▼ ${dp.toFixed(2)}%</span>`:'-');
-          
-          tb.innerHTML += `<tr><td class="fw-bold">${p}</td><td>${bPct.toFixed(2)}%</td><td class="fw-bold text-primary">${tPct.toFixed(2)}%</td><td>${sc}</td><td>${sp}</td></tr>`;
-        }
+          tb.innerHTML += `<tr><td class="fw-bold">${item.name}</td><td>${item.bPct.toFixed(2)}%</td><td class="fw-bold text-primary">${item.tPct.toFixed(2)}%</td><td>${sc}</td><td>${sp}</td></tr>`;
+        });
 
         // 📌 เพิ่มแถวรวมทั้งสิ้นให้กับหน้าเปรียบเทียบ
         var totalBPct = tB > 0 ? (cB / tB) * 100 : 0;
@@ -560,7 +605,6 @@
         var tsc = totalDc>0 ? `<span class="text-success fw-bold">▲ +${totalDc.toLocaleString()}</span>` : (totalDc<0?`<span class="text-danger fw-bold">▼ ${totalDc.toLocaleString()}</span>`:'-');
         var tsp = totalDp>0 ? `<span class="text-success fw-bold">▲ +${totalDp.toFixed(2)}%</span>` : (totalDp<0?`<span class="text-danger fw-bold">▼ ${totalDp.toFixed(2)}%</span>`:'-');
 
-        // 📌 เปลี่ยนคลาสตรงนี้เป็น text-center เพื่อให้ตรงกับรายชื่อด้านบน
         tb.innerHTML += `<tr style="background-color: #e3f2fd; border-top: 3px solid var(--thp-blue); border-bottom: 2px solid var(--thp-blue);">
           <td class="fw-bold text-center" style="color: var(--thp-blue); font-size: 1.05rem;">
             <i class="bi bi-award-fill me-1 text-warning"></i> รวมทั้งสิ้น
@@ -596,23 +640,12 @@
       function exportTableToImage() {
         var btn = document.querySelector('.btn-export-img'), ex = document.getElementById('export-section'), tc = document.getElementById('table-container'), ct = document.getElementById('capture-table');
         var ow = ex.style.width, max = tc.style.maxHeight, ox = tc.style.overflowX, oy = tc.style.overflowY, bs = ex.style.boxShadow;
-        
-        // 📌 สร้างชื่อไฟล์อัตโนมัติตามตัวกรองที่เลือกในหน้าภาพรวม
-        var selGroup = document.getElementById('filterSelect').value;
-        var fileName = 'ภาพรวมระบบ';
-        if (selGroup !== 'all') {
-          fileName += '_' + selGroup; 
-        } else {
-          fileName += '_ทั้งหมด';
-        }
-        fileName += '.png';
-
         btn.classList.add('disabled'); tc.style.maxHeight='none'; tc.style.overflow='visible'; ex.style.boxShadow='none'; ex.style.width=ct.scrollWidth+'px';
         setTimeout(() => {
           html2canvas(ex, {scale:2, backgroundColor:'#fff', useCORS:true}).then(cvs => {
             tc.style.maxHeight=max||'450px'; tc.style.overflowX=ox||'auto'; tc.style.overflowY=oy||'auto'; ex.style.boxShadow=bs||'0 4px 15px -3px rgba(0,0,0,0.05)'; ex.style.width=ow||'';
             btn.classList.remove('disabled');
-            var l=document.createElement('a'); l.download=fileName; l.href=cvs.toDataURL('image/png'); l.click();
+            var l=document.createElement('a'); l.download='รายงานสถานะปักหมุด.png'; l.href=cvs.toDataURL('image/png'); l.click();
           }).catch(e=>{alert(e); tc.style.overflowX=ox||'auto'; btn.classList.remove('disabled'); ex.style.width=ow||'';});
         }, 500);
       }
