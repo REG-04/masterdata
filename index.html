@@ -18,6 +18,7 @@
         --thp-red: #da251d; --thp-red-dark: #b71c1c; --thp-red-soft: #fbe9e8;
         --thp-blue: #003876; --thp-blue-light: #1976d2; --thp-blue-soft: #e3f2fd;
         --thp-gray: #64748b; --thp-gray-light: #94a3b8; --thp-gray-soft: #f1f5f9;
+        --thp-orange: #ea580c; --thp-orange-soft: #fff7ed;
         --bg-main: #f4f6f9; --sidebar-bg: #e2e8f0; --sidebar-width: 260px; 
         --card-radius: 12px; --card-shadow: 0 4px 15px -3px rgba(0,0,0,0.05); 
       }
@@ -110,6 +111,8 @@
       <ul class="nav-menu">
         <li><a id="nav-overview" class="nav-link active" onclick="switchTab('overview')"><i class="bi bi-grid-fill"></i> ภาพรวมระบบ</a></li>
         <li><a id="nav-compare" class="nav-link" onclick="switchTab('compare')"><i class="bi bi-bar-chart-line-fill"></i> เปรียบเทียบผลงาน</a></li>
+        <!-- 📌 เพิ่มเมนูงานรอตรวจสอบ -->
+        <li><a id="nav-pending" class="nav-link" onclick="switchTab('pending')"><i class="bi bi-card-checklist"></i> งานรอตรวจสอบ</a></li>
       </ul>
 
       <!-- ตัวกรองของหน้า Overview -->
@@ -142,6 +145,16 @@
         <label for="compFilterSelect" class="filter-label"><i class="bi bi-funnel-fill"></i> เลือกระดับข้อมูล (กลุ่ม ปจ.)</label>
         <select id="compFilterSelect" class="form-select form-select-custom mb-0" onchange="updateCompare()">
           <option value="all">🌐 แสดงภาพรวมทุกกลุ่ม ปจ.</option>
+        </select>
+      </div>
+
+      <!-- 📌 ตัวกรองของหน้า งานรอตรวจสอบ -->
+      <div class="sidebar-filter mb-3" id="pending-filters" style="display: none;">
+        <label for="pendingSearchInput" class="filter-label"><i class="bi bi-search"></i> ค้นหาชื่อที่ทำการ</label>
+        <input type="text" id="pendingSearchInput" class="form-control form-input-custom" placeholder="พิมพ์คำค้นหา..." onkeyup="updatePendingDashboard()">
+        <label for="pendingFilterSelect" class="filter-label"><i class="bi bi-funnel-fill"></i> เลือกกลุ่ม ปจ.</label>
+        <select id="pendingFilterSelect" class="form-select form-select-custom mb-0" onchange="updatePendingDashboard()">
+          <option value="all">🌐 แสดงภาพรวมทั้งหมด</option>
         </select>
       </div>
     </div>
@@ -306,10 +319,62 @@
           </div>
         </div>
       </div>
+
+      <!-- ==================== 📌 TAB: PENDING (งานรอตรวจสอบ) ==================== -->
+      <div id="tab-pending" style="display: none;">
+        <!-- Card ยอดรวม -->
+        <div class="row">
+          <div class="col-xl-4 col-md-6 col-12 mb-3">
+            <div class="card summary-card h-100" style="border-left: 4px solid var(--thp-orange);">
+              <div class="summary-info"><p>ยอดรอตรวจสอบทั้งหมด</p><h3 id="sum-pending-total" style="color: var(--thp-orange);">-</h3></div>
+              <div class="icon-float" style="background: var(--thp-orange-soft); color: var(--thp-orange);"><i class="bi bi-clipboard-data-fill"></i></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Table งานรอตรวจสอบ -->
+        <div class="row">
+          <div class="col-12">
+            <div class="card mb-3" id="pending-export-section">
+              <div class="card-header-custom" data-html2canvas-ignore="true">
+                <h6 id="pending-table-title-text"><i class="bi bi-table"></i> รายงานยอดงานรอตรวจสอบ</h6>
+                <div class="d-flex gap-2 flex-wrap">
+                  <button class="btn-sm-custom btn-export-img" onclick="exportPendingTableToImage()" id="btn-pending-export">
+                    <i class="bi bi-camera-fill me-1"></i> แคปเจอร์
+                  </button>
+                </div>
+              </div>
+              
+              <!-- หัวกระดาษเวลาแคปเจอร์ -->
+              <div class="text-center pt-3 pb-2 px-3">
+                <h5 class="fw-bold mb-1" style="color: var(--thp-red);" id="pending-report-title">รายงานยอดงานรอตรวจสอบ</h5>
+                <p class="text-secondary mb-2" style="font-size: 0.85rem; font-weight: 500;" id="pending-report-date"></p>
+              </div>
+
+              <div class="table-responsive" id="pending-table-container">
+                <table class="table align-middle text-center" id="pending-capture-table">
+                  <thead>
+                    <tr>
+                      <th style="width: 15%;">ลำดับ</th>
+                      <th style="width: 30%;">กลุ่ม ปจ.</th>
+                      <th style="width: 30%;">ที่ทำการ</th>
+                      <th style="width: 25%;">จำนวนงานรอตรวจสอบ</th>
+                    </tr>
+                  </thead>
+                  <tbody id="pending-dataTable"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
       
     </div>
 
     <script>
+      // 📌 ข้อมูลงานรอตรวจสอบ (จากไฟล์ CSV 20261006_Report_SummaryOrdergroup)
+      var pendingData = [{"province": "กาฬสินธุ์", "branch": "กมลาไสย", "count": 3410, "postCode": 46130}, {"province": "กาฬสินธุ์", "branch": "กาฬสินธุ์", "count": 14516, "postCode": 46000}, {"province": "กาฬสินธุ์", "branch": "กุฉินารายณ์", "count": 94, "postCode": 46110}, {"province": "กาฬสินธุ์", "branch": "คำม่วง", "count": 202, "postCode": 46180}, {"province": "กาฬสินธุ์", "branch": "ท่าคันโท", "count": 177, "postCode": 46190}, {"province": "กาฬสินธุ์", "branch": "นาคู", "count": 135, "postCode": 46250}, {"province": "กาฬสินธุ์", "branch": "นามน", "count": 160, "postCode": 46230}, {"province": "กาฬสินธุ์", "branch": "ยางตลาด", "count": 2846, "postCode": 46120}, {"province": "กาฬสินธุ์", "branch": "ร่องคำ", "count": 126, "postCode": 46210}, {"province": "กาฬสินธุ์", "branch": "สมเด็จ", "count": 158, "postCode": 46150}, {"province": "กาฬสินธุ์", "branch": "สหัสขันธ์", "count": 71, "postCode": 46140}, {"province": "กาฬสินธุ์", "branch": "หนองกุงศรี", "count": 25, "postCode": 46220}, {"province": "กาฬสินธุ์", "branch": "ห้วยผึ้ง", "count": 167, "postCode": 46240}, {"province": "กาฬสินธุ์", "branch": "ห้วยเม็ก", "count": 32, "postCode": 46170}, {"province": "กาฬสินธุ์", "branch": "เขาวง", "count": 89, "postCode": 46160}, {"province": "ขอนแก่น", "branch": "ขอนแก่น", "count": 637, "postCode": 40000}, {"province": "ขอนแก่น", "branch": "มัญจาคีรี", "count": 387, "postCode": 40160}, {"province": "ขอนแก่น", "branch": "หนองสองห้อง", "count": 299, "postCode": 40190}, {"province": "ขอนแก่น", "branch": "แวงใหญ่", "count": 143, "postCode": 40330}, {"province": "บึงกาฬ", "branch": "บึงกาฬ", "count": 5, "postCode": 38000}, {"province": "บึงกาฬ", "branch": "บึงโขงหลง", "count": 22, "postCode": 38220}, {"province": "บึงกาฬ", "branch": "ปากคาด", "count": 328, "postCode": 38190}, {"province": "บึงกาฬ", "branch": "ศรีวิไล", "count": 36, "postCode": 38210}, {"province": "บึงกาฬ", "branch": "เซกา", "count": 203, "postCode": 38150}, {"province": "บึงกาฬ", "branch": "โซ่พิสัย", "count": 496, "postCode": 38170}, {"province": "มหาสารคาม", "branch": "นาดูน", "count": 33, "postCode": 44180}, {"province": "มหาสารคาม", "branch": "ยางสีสุราช", "count": 553, "postCode": 44210}, {"province": "มหาสารคาม", "branch": "วาปีปทุม", "count": 1946, "postCode": 44120}, {"province": "มหาสารคาม", "branch": "เชียงยืน", "count": 2079, "postCode": 44160}, {"province": "มหาสารคาม", "branch": "โกสุมพิสัย", "count": 1137, "postCode": 44140}, {"province": "หนองคาย", "branch": "ค่ายบกหวาน", "count": 127, "postCode": 43100}, {"province": "หนองคาย", "branch": "ท่าบ่อ", "count": 159, "postCode": 43110}, {"province": "หนองคาย", "branch": "ศรีเชียงใหม่", "count": 120, "postCode": 43130}, {"province": "หนองคาย", "branch": "สังคม", "count": 97, "postCode": 43160}, {"province": "หนองคาย", "branch": "เฝ้าไร่", "count": 94, "postCode": 43230}, {"province": "หนองคาย", "branch": "โพนพิสัย", "count": 3119, "postCode": 43120}, {"province": "หนองบัวลำภู", "branch": "กุดดินจี่", "count": 84, "postCode": 39350}, {"province": "หนองบัวลำภู", "branch": "นากลาง", "count": 183, "postCode": 39170}, {"province": "หนองบัวลำภู", "branch": "ศรีบุญเรือง", "count": 48, "postCode": 39180}, {"province": "หนองบัวลำภู", "branch": "สุวรรณคูหา", "count": 341, "postCode": 39270}, {"province": "อุดรธานี", "branch": "กุดจับ", "count": 246, "postCode": 41250}, {"province": "อุดรธานี", "branch": "กุมภวาปี", "count": 481, "postCode": 41110}, {"province": "อุดรธานี", "branch": "ทุ่งฝน", "count": 4, "postCode": 41310}, {"province": "อุดรธานี", "branch": "นายูง", "count": 130, "postCode": 41380}, {"province": "อุดรธานี", "branch": "น้ำโสม", "count": 325, "postCode": 41210}, {"province": "อุดรธานี", "branch": "บ้านดุง", "count": 228, "postCode": 41190}, {"province": "อุดรธานี", "branch": "บ้านผือ", "count": 360, "postCode": 41160}, {"province": "อุดรธานี", "branch": "บ้านเชียง", "count": 4, "postCode": 41320}, {"province": "อุดรธานี", "branch": "พันดอน", "count": 168, "postCode": 41370}, {"province": "อุดรธานี", "branch": "ศรีธาตุ", "count": 670, "postCode": 41230}, {"province": "อุดรธานี", "branch": "หนองวัวซอ", "count": 46, "postCode": 41220}, {"province": "อุดรธานี", "branch": "หนองหาน", "count": 95, "postCode": 41130}, {"province": "อุดรธานี", "branch": "หนองแสง", "count": 1, "postCode": 41340}, {"province": "อุดรธานี", "branch": "อุดรธานี", "count": 11, "postCode": 41000}, {"province": "อุดรธานี", "branch": "เพ็ญ", "count": 4975, "postCode": 41150}, {"province": "อุดรธานี", "branch": "โนนสะอาด", "count": 60, "postCode": 41240}, {"province": "อุดรธานี", "branch": "ไชยวาน", "count": 625, "postCode": 41290}, {"province": "เลย", "branch": "ด่านซ้าย", "count": 56, "postCode": 42120}, {"province": "เลย", "branch": "ท่าลี่", "count": 2, "postCode": 42140}, {"province": "เลย", "branch": "นาอ้อ", "count": 7, "postCode": 42100}, {"province": "เลย", "branch": "นาแห้ว", "count": 76, "postCode": 42170}, {"province": "เลย", "branch": "ปากชม", "count": 276, "postCode": 42150}, {"province": "เลย", "branch": "ผาขาว", "count": 67, "postCode": 42240}, {"province": "เลย", "branch": "ภูกระดึง", "count": 113, "postCode": 42180}, {"province": "เลย", "branch": "ภูหลวง", "count": 67, "postCode": 42230}, {"province": "เลย", "branch": "ภูเรือ", "count": 20, "postCode": 42160}, {"province": "เลย", "branch": "วังสะพุง", "count": 827, "postCode": 42130}, {"province": "เลย", "branch": "หนองหิน", "count": 44, "postCode": 42190}, {"province": "เลย", "branch": "เชียงคาน", "count": 218, "postCode": 42110}, {"province": "เลย", "branch": "เลย", "count": 1053, "postCode": 42000}, {"province": "เลย", "branch": "เอราวัณ", "count": 8, "postCode": 42220}];
+
       // Navigation & Layout Logic
       document.getElementById('btnToggleSidebar').addEventListener('click', toggleSidebar);
       document.getElementById('sidebarBackdrop').addEventListener('click', toggleSidebar);
@@ -324,21 +389,31 @@
       function switchTab(tab) {
         document.getElementById('nav-overview').classList.remove('active');
         document.getElementById('nav-compare').classList.remove('active');
+        document.getElementById('nav-pending').classList.remove('active');
+        
         document.getElementById('tab-overview').style.display = 'none';
         document.getElementById('tab-compare').style.display = 'none';
+        document.getElementById('tab-pending').style.display = 'none';
+        
         document.getElementById('overview-filters').style.display = 'none';
         document.getElementById('compare-filters').style.display = 'none';
+        document.getElementById('pending-filters').style.display = 'none';
         
         document.getElementById('nav-' + tab).classList.add('active');
         document.getElementById('tab-' + tab).style.display = 'block';
-        document.getElementById('page-main-title').innerText = tab === 'overview' ? 'สรุปผลการดำเนินงาน' : 'วิเคราะห์เปรียบเทียบผลงาน';
         
         if (tab === 'overview') {
+          document.getElementById('page-main-title').innerText = 'สรุปผลการดำเนินงาน';
           document.getElementById('overview-filters').style.display = 'block';
           if(rawData.length > 0) updateDashboard();
-        } else {
+        } else if (tab === 'compare') {
+          document.getElementById('page-main-title').innerText = 'วิเคราะห์เปรียบเทียบผลงาน';
           document.getElementById('compare-filters').style.display = 'block';
           if(historyData.length > 0) updateCompare();
+        } else if (tab === 'pending') {
+          document.getElementById('page-main-title').innerText = 'งานรอตรวจสอบ';
+          document.getElementById('pending-filters').style.display = 'block';
+          updatePendingDashboard();
         }
       }
 
@@ -364,6 +439,7 @@
             buildTableHeaders(sheetHeaders);
             populateFilterDropdown(); 
             populateCompareDropdowns();
+            populatePendingDropdown(); // 📌 โหลดข้อมูลลง Dropdown งานรอตรวจสอบ
             
             google.charts.setOnLoadCallback(() => { updateDashboard(); });
           })
@@ -412,15 +488,13 @@
             var pctVal = g[p].t>0 ? (g[p].c/g[p].t)*100 : 0;
             return {colA:'-', colB:'กลุ่ม '+p, colC:p, colD:g[p].t, colE:g[p].c, colF:g[p].x, colG:g[p].w, colH:pctVal.toFixed(2)+'%', pctVal: pctVal}; 
           });
-          // 📌 1. ภาพรวมทั้งหมด: เรียงเปอร์เซ็นต์ความสำเร็จจากมากไปน้อย
+          // ภาพรวมทั้งหมด: เรียงเปอร์เซ็นต์ความสำเร็จจากมากไปน้อย
           tData.sort((a,b) => b.pctVal - a.pctVal);
         } else {
-          // 📌 2. รายกลุ่ม ปจ.: เรียงตามรหัสที่ทำการ (คอลัมน์ A) 
+          // รายกลุ่ม ปจ.: เรียงตามรหัสที่ทำการ (คอลัมน์ A) 
           tData.sort((a, b) => String(a.colA).localeCompare(String(b.colA), 'th', {numeric: true}));
         }
-        
-        drawChartsOverview(fData, sel, search); 
-        updateTableOverview(tData);
+        drawChartsOverview(fData, sel, search); updateTableOverview(tData);
       }
 
       function drawChartsOverview(data, sel, search) {
@@ -434,12 +508,10 @@
           var sortedGroups = Object.keys(g).map(p => {
              return { name: p, c: g[p].c, x: g[p].x, w: g[p].w, pct: g[p].t>0 ? (g[p].c/g[p].t)*100 : 0 };
           });
-          // 📌 เรียงกราฟภาพรวม: ให้ตรงกับตาราง (มากไปน้อย)
           sortedGroups.sort((a,b) => b.pct - a.pct);
           sortedGroups.forEach(item => bArr.push([item.name, item.c, item.x, item.w]));
           
         } else { 
-          // 📌 เรียงกราฟราย ปจ.: ให้เรียงตามรหัสที่ทำการ
           var sortedData = [...data].sort((a, b) => String(a.colA).localeCompare(String(b.colA), 'th', {numeric: true}));
           sortedData.forEach(i => bArr.push([String(i.colB), parseNum(i.colE), parseNum(i.colF), parseNum(i.colG)])); 
         }
@@ -519,6 +591,7 @@
         var gb = {}, gt = {};
         var groupKey = (selGroup === 'all') ? 'colC' : 'colB'; 
         
+        // 📌 เก็บ colA (รหัสที่ทำการ) เอาไว้ใช้จัดเรียงตอนดูราย ปจ. ด้วย
         bData.forEach(i => { var p = String(i[groupKey]); if(!gb[p]) gb[p]={t:0,c:0,w:0, colA: i.colA}; gb[p].t+=parseNum(i.colD); gb[p].c+=parseNum(i.colE); gb[p].w+=parseNum(i.colG); });
         tData.forEach(i => { var p = String(i[groupKey]); if(!gt[p]) gt[p]={t:0,c:0,w:0, colA: i.colA}; gt[p].t+=parseNum(i.colD); gt[p].c+=parseNum(i.colE); gt[p].w+=parseNum(i.colG); });
 
@@ -618,7 +691,74 @@
         else if(delta>0) el.className = 'delta-text ' + (goodIsUp?'delta-up':'delta-down');
         else el.className = 'delta-text ' + (!goodIsUp?'delta-up':'delta-down');
       }
+
+      // ================= 📌 PENDING DASHBOARD (งานรอตรวจสอบ) =================
+      function populatePendingDropdown() {
+        var s = document.getElementById('pendingFilterSelect');
+        [...new Set(pendingData.map(i => i.province))].sort().forEach(val => {
+          var o = document.createElement('option'); o.value = val; o.text = val; s.appendChild(o);
+        });
+      }
+
+      function updatePendingDashboard() {
+        var sel = document.getElementById('pendingFilterSelect').value;
+        var search = document.getElementById('pendingSearchInput').value.toLowerCase().trim();
+        
+        // 📌 กรองข้อมูลตามที่ค้นหาและเลือก
+        var fData = pendingData.filter(i => (sel === 'all' || i.province === sel) && (search === '' || i.province.toLowerCase().includes(search) || i.branch.toLowerCase().includes(search)));
+        
+        var tData = fData;
+        if (sel === 'all' && search === '') {
+          // ถ้าเลือกภาพรวมทั้งหมด ให้จัดกลุ่ม (Group) ตามจังหวัด
+          var g = {};
+          fData.forEach(i => {
+            if(!g[i.province]) g[i.province] = 0;
+            g[i.province] += i.count;
+          });
+          tData = Object.keys(g).map(p => {
+            return { province: p, branch: 'รวมทุกที่ทำการ', count: g[p] };
+          });
+          // 📌 เรียงลำดับจากจังหวัดที่มีงานรอตรวจสอบมากไปหาน้อย
+          tData.sort((a, b) => b.count - a.count);
+        } else {
+          // ถ้าเลือกเจาะจงจังหวัด ให้โชว์รายชื่อที่ทำการ (เรียงตามรหัสที่ทำการ postCodeResponsible)
+          tData.sort((a, b) => a.postCode - b.postCode);
+        }
+        
+        // 📌 อัปเดตหัวข้อรายงาน
+        var rt = document.getElementById('pending-report-title');
+        if (sel === 'all') { rt.innerText = "รายงานยอดงานรอตรวจสอบ: ภาพรวมทุกกลุ่ม ปจ."; }
+        else { rt.innerText = "รายงานยอดงานรอตรวจสอบ: กลุ่ม ปจ. " + sel; }
+        document.getElementById('pending-report-date').innerText = 'ข้อมูล ณ วันที่ ' + getThaiDate();
+
+        var tb = document.getElementById('pending-dataTable');
+        tb.innerHTML = '';
+        if(tData.length === 0) { tb.innerHTML='<tr><td colspan="4" class="py-4 text-muted bg-white">ไม่พบข้อมูล</td></tr>'; return; }
+        
+        var sumPending = 0;
+        tData.forEach((i, idx) => {
+          sumPending += i.count;
+          tb.innerHTML += `<tr class="${idx%2===0?'row-white':'row-gray'}">
+            <td class="text-slate-500">${idx+1}</td>
+            <td class="fw-bold text-start text-dark">${i.province}</td>
+            <td class="text-slate-500">${i.branch}</td>
+            <td class="fw-bold" style="color: var(--thp-orange); font-size: 1.05rem;">${i.count.toLocaleString()}</td>
+          </tr>`;
+        });
+        
+        // อัปเดตยอดการ์ดรวมด้านบน
+        document.getElementById('sum-pending-total').innerText = sumPending.toLocaleString();
+        
+        // 📌 แถบผลรวมด้านล่างสุดของตาราง
+        tb.innerHTML += `<tr style="background-color: #fff9f5; border-top: 2px solid var(--thp-red); box-shadow: 0 -4px 10px rgba(0,0,0,0.03);">
+            <td colspan="3" class="fw-bold text-end pe-4" style="color: var(--thp-red); font-size: 1.05rem;">
+              <i class="bi bi-bar-chart-fill me-1"></i> รวมทั้งสิ้น (ยอดรอตรวจสอบ)
+            </td>
+            <td class="fw-bold" style="color: var(--thp-orange); font-size: 1.15rem;">${sumPending.toLocaleString()}</td>
+          </tr>`;
+      }
       
+      // ================= EXPORT FUNCTIONS =================
       function exportTableToCSV() { 
         var fileName = 'รายงานหมุด.csv';
         var csv = [sheetHeaders.map(h => '"' + String(h).replace(/"/g, '""') + '"').join(',')];
@@ -630,21 +770,25 @@
         var link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = fileName; link.click();
       }
       
-      // ฟังก์ชันแคปเจอร์ภาพ หน้าภาพรวม
       function exportTableToImage() {
         var btn = document.querySelector('.btn-export-img'), ex = document.getElementById('export-section'), tc = document.getElementById('table-container'), ct = document.getElementById('capture-table');
         var ow = ex.style.width, max = tc.style.maxHeight, ox = tc.style.overflowX, oy = tc.style.overflowY, bs = ex.style.boxShadow;
+        
+        var selGroup = document.getElementById('filterSelect').value;
+        var fileName = 'ภาพรวมระบบ';
+        if (selGroup !== 'all') { fileName += '_' + selGroup; } else { fileName += '_ทั้งหมด'; }
+        fileName += '.png';
+
         btn.classList.add('disabled'); tc.style.maxHeight='none'; tc.style.overflow='visible'; ex.style.boxShadow='none'; ex.style.width=ct.scrollWidth+'px';
         setTimeout(() => {
           html2canvas(ex, {scale:2, backgroundColor:'#fff', useCORS:true}).then(cvs => {
             tc.style.maxHeight=max||'450px'; tc.style.overflowX=ox||'auto'; tc.style.overflowY=oy||'auto'; ex.style.boxShadow=bs||'0 4px 15px -3px rgba(0,0,0,0.05)'; ex.style.width=ow||'';
             btn.classList.remove('disabled');
-            var l=document.createElement('a'); l.download='รายงานสถานะปักหมุด.png'; l.href=cvs.toDataURL('image/png'); l.click();
+            var l=document.createElement('a'); l.download=fileName; l.href=cvs.toDataURL('image/png'); l.click();
           }).catch(e=>{alert(e); tc.style.overflowX=ox||'auto'; btn.classList.remove('disabled'); ex.style.width=ow||'';});
         }, 500);
       }
 
-      // 📌 ฟังก์ชันแคปเจอร์ภาพ หน้าเปรียบเทียบผลงาน
       function exportCompareTableToImage() {
         var btn = document.getElementById('btn-comp-export'), 
             ex = document.getElementById('comp-export-section'), 
@@ -653,14 +797,9 @@
             
         var ow = ex.style.width, max = tc.style.maxHeight, ox = tc.style.overflowX, oy = tc.style.overflowY, bs = ex.style.boxShadow;
         
-        // 📌 สร้างชื่อไฟล์อัตโนมัติตามกลุ่ม ปจ. ที่เลือก
         var selGroup = document.getElementById('compFilterSelect').value;
         var fileName = 'เปรียบเทียบผลงาน';
-        if (selGroup !== 'all') {
-          fileName += '_' + selGroup; 
-        } else {
-          fileName += '_ภาพรวมทั้งหมด';
-        }
+        if (selGroup !== 'all') { fileName += '_' + selGroup; } else { fileName += '_ภาพรวมทั้งหมด'; }
         fileName += '.png';
 
         btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>...';
@@ -683,7 +822,54 @@
             btn.classList.remove('disabled');
             
             var l = document.createElement('a'); 
-            l.download = fileName; // 📌 นำตัวแปรชื่อไฟล์มาใช้งานตรงนี้
+            l.download = fileName; 
+            l.href = cvs.toDataURL('image/png'); 
+            l.click();
+          }).catch(e => {
+            alert(e); 
+            tc.style.overflowX = ox || 'auto'; 
+            btn.innerHTML = '<i class="bi bi-camera-fill me-1"></i> แคปเจอร์'; 
+            btn.classList.remove('disabled'); 
+            ex.style.width = ow || '';
+          });
+        }, 500);
+      }
+
+      // 📌 ฟังก์ชันแคปเจอร์ภาพ หน้างานรอตรวจสอบ
+      function exportPendingTableToImage() {
+        var btn = document.getElementById('btn-pending-export'), 
+            ex = document.getElementById('pending-export-section'), 
+            tc = document.getElementById('pending-table-container'), 
+            ct = document.getElementById('pending-capture-table');
+            
+        var ow = ex.style.width, max = tc.style.maxHeight, ox = tc.style.overflowX, oy = tc.style.overflowY, bs = ex.style.boxShadow;
+        
+        var selGroup = document.getElementById('pendingFilterSelect').value;
+        var fileName = 'รายงานงานรอตรวจสอบ';
+        if (selGroup !== 'all') { fileName += '_' + selGroup; } else { fileName += '_ภาพรวมทั้งหมด'; }
+        fileName += '.png';
+
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>...';
+        btn.classList.add('disabled'); 
+        
+        tc.style.maxHeight = 'none'; 
+        tc.style.overflow = 'visible'; 
+        ex.style.boxShadow = 'none'; 
+        ex.style.width = ct.scrollWidth + 'px';
+        
+        setTimeout(() => {
+          html2canvas(ex, {scale:2, backgroundColor:'#fff', useCORS:true}).then(cvs => {
+            tc.style.maxHeight = max || '450px'; 
+            tc.style.overflowX = ox || 'auto'; 
+            tc.style.overflowY = oy || 'auto'; 
+            ex.style.boxShadow = bs || '0 4px 15px -3px rgba(0,0,0,0.05)'; 
+            ex.style.width = ow || '';
+            
+            btn.innerHTML = '<i class="bi bi-camera-fill me-1"></i> แคปเจอร์';
+            btn.classList.remove('disabled');
+            
+            var l = document.createElement('a'); 
+            l.download = fileName; 
             l.href = cvs.toDataURL('image/png'); 
             l.click();
           }).catch(e => {
