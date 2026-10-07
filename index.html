@@ -372,9 +372,6 @@
     </div>
 
     <script>
-      // 📌 ข้อมูลงานรอตรวจสอบ (จากไฟล์ CSV 20261006_Report_SummaryOrdergroup)
-      var pendingData = [{"province": "กาฬสินธุ์", "branch": "กมลาไสย", "count": 3410, "postCode": 46130}, {"province": "กาฬสินธุ์", "branch": "กาฬสินธุ์", "count": 14516, "postCode": 46000}, {"province": "กาฬสินธุ์", "branch": "กุฉินารายณ์", "count": 94, "postCode": 46110}, {"province": "กาฬสินธุ์", "branch": "คำม่วง", "count": 202, "postCode": 46180}, {"province": "กาฬสินธุ์", "branch": "ท่าคันโท", "count": 177, "postCode": 46190}, {"province": "กาฬสินธุ์", "branch": "นาคู", "count": 135, "postCode": 46250}, {"province": "กาฬสินธุ์", "branch": "นามน", "count": 160, "postCode": 46230}, {"province": "กาฬสินธุ์", "branch": "ยางตลาด", "count": 2846, "postCode": 46120}, {"province": "กาฬสินธุ์", "branch": "ร่องคำ", "count": 126, "postCode": 46210}, {"province": "กาฬสินธุ์", "branch": "สมเด็จ", "count": 158, "postCode": 46150}, {"province": "กาฬสินธุ์", "branch": "สหัสขันธ์", "count": 71, "postCode": 46140}, {"province": "กาฬสินธุ์", "branch": "หนองกุงศรี", "count": 25, "postCode": 46220}, {"province": "กาฬสินธุ์", "branch": "ห้วยผึ้ง", "count": 167, "postCode": 46240}, {"province": "กาฬสินธุ์", "branch": "ห้วยเม็ก", "count": 32, "postCode": 46170}, {"province": "กาฬสินธุ์", "branch": "เขาวง", "count": 89, "postCode": 46160}, {"province": "ขอนแก่น", "branch": "ขอนแก่น", "count": 637, "postCode": 40000}, {"province": "ขอนแก่น", "branch": "มัญจาคีรี", "count": 387, "postCode": 40160}, {"province": "ขอนแก่น", "branch": "หนองสองห้อง", "count": 299, "postCode": 40190}, {"province": "ขอนแก่น", "branch": "แวงใหญ่", "count": 143, "postCode": 40330}, {"province": "บึงกาฬ", "branch": "บึงกาฬ", "count": 5, "postCode": 38000}, {"province": "บึงกาฬ", "branch": "บึงโขงหลง", "count": 22, "postCode": 38220}, {"province": "บึงกาฬ", "branch": "ปากคาด", "count": 328, "postCode": 38190}, {"province": "บึงกาฬ", "branch": "ศรีวิไล", "count": 36, "postCode": 38210}, {"province": "บึงกาฬ", "branch": "เซกา", "count": 203, "postCode": 38150}, {"province": "บึงกาฬ", "branch": "โซ่พิสัย", "count": 496, "postCode": 38170}, {"province": "มหาสารคาม", "branch": "นาดูน", "count": 33, "postCode": 44180}, {"province": "มหาสารคาม", "branch": "ยางสีสุราช", "count": 553, "postCode": 44210}, {"province": "มหาสารคาม", "branch": "วาปีปทุม", "count": 1946, "postCode": 44120}, {"province": "มหาสารคาม", "branch": "เชียงยืน", "count": 2079, "postCode": 44160}, {"province": "มหาสารคาม", "branch": "โกสุมพิสัย", "count": 1137, "postCode": 44140}, {"province": "หนองคาย", "branch": "ค่ายบกหวาน", "count": 127, "postCode": 43100}, {"province": "หนองคาย", "branch": "ท่าบ่อ", "count": 159, "postCode": 43110}, {"province": "หนองคาย", "branch": "ศรีเชียงใหม่", "count": 120, "postCode": 43130}, {"province": "หนองคาย", "branch": "สังคม", "count": 97, "postCode": 43160}, {"province": "หนองคาย", "branch": "เฝ้าไร่", "count": 94, "postCode": 43230}, {"province": "หนองคาย", "branch": "โพนพิสัย", "count": 3119, "postCode": 43120}, {"province": "หนองบัวลำภู", "branch": "กุดดินจี่", "count": 84, "postCode": 39350}, {"province": "หนองบัวลำภู", "branch": "นากลาง", "count": 183, "postCode": 39170}, {"province": "หนองบัวลำภู", "branch": "ศรีบุญเรือง", "count": 48, "postCode": 39180}, {"province": "หนองบัวลำภู", "branch": "สุวรรณคูหา", "count": 341, "postCode": 39270}, {"province": "อุดรธานี", "branch": "กุดจับ", "count": 246, "postCode": 41250}, {"province": "อุดรธานี", "branch": "กุมภวาปี", "count": 481, "postCode": 41110}, {"province": "อุดรธานี", "branch": "ทุ่งฝน", "count": 4, "postCode": 41310}, {"province": "อุดรธานี", "branch": "นายูง", "count": 130, "postCode": 41380}, {"province": "อุดรธานี", "branch": "น้ำโสม", "count": 325, "postCode": 41210}, {"province": "อุดรธานี", "branch": "บ้านดุง", "count": 228, "postCode": 41190}, {"province": "อุดรธานี", "branch": "บ้านผือ", "count": 360, "postCode": 41160}, {"province": "อุดรธานี", "branch": "บ้านเชียง", "count": 4, "postCode": 41320}, {"province": "อุดรธานี", "branch": "พันดอน", "count": 168, "postCode": 41370}, {"province": "อุดรธานี", "branch": "ศรีธาตุ", "count": 670, "postCode": 41230}, {"province": "อุดรธานี", "branch": "หนองวัวซอ", "count": 46, "postCode": 41220}, {"province": "อุดรธานี", "branch": "หนองหาน", "count": 95, "postCode": 41130}, {"province": "อุดรธานี", "branch": "หนองแสง", "count": 1, "postCode": 41340}, {"province": "อุดรธานี", "branch": "อุดรธานี", "count": 11, "postCode": 41000}, {"province": "อุดรธานี", "branch": "เพ็ญ", "count": 4975, "postCode": 41150}, {"province": "อุดรธานี", "branch": "โนนสะอาด", "count": 60, "postCode": 41240}, {"province": "อุดรธานี", "branch": "ไชยวาน", "count": 625, "postCode": 41290}, {"province": "เลย", "branch": "ด่านซ้าย", "count": 56, "postCode": 42120}, {"province": "เลย", "branch": "ท่าลี่", "count": 2, "postCode": 42140}, {"province": "เลย", "branch": "นาอ้อ", "count": 7, "postCode": 42100}, {"province": "เลย", "branch": "นาแห้ว", "count": 76, "postCode": 42170}, {"province": "เลย", "branch": "ปากชม", "count": 276, "postCode": 42150}, {"province": "เลย", "branch": "ผาขาว", "count": 67, "postCode": 42240}, {"province": "เลย", "branch": "ภูกระดึง", "count": 113, "postCode": 42180}, {"province": "เลย", "branch": "ภูหลวง", "count": 67, "postCode": 42230}, {"province": "เลย", "branch": "ภูเรือ", "count": 20, "postCode": 42160}, {"province": "เลย", "branch": "วังสะพุง", "count": 827, "postCode": 42130}, {"province": "เลย", "branch": "หนองหิน", "count": 44, "postCode": 42190}, {"province": "เลย", "branch": "เชียงคาน", "count": 218, "postCode": 42110}, {"province": "เลย", "branch": "เลย", "count": 1053, "postCode": 42000}, {"province": "เลย", "branch": "เอราวัณ", "count": 8, "postCode": 42220}];
-
       // Navigation & Layout Logic
       document.getElementById('btnToggleSidebar').addEventListener('click', toggleSidebar);
       document.getElementById('sidebarBackdrop').addEventListener('click', toggleSidebar);
@@ -436,10 +433,13 @@
             historyData = data.history || [];
             sheetHeaders = data.headers || [];
             
+            // 📌 รับข้อมูลงานรอตรวจสอบจาก API แล้วใส่เป็นตัวแปร Global
+            window.pendingData = data.pending || []; 
+            
             buildTableHeaders(sheetHeaders);
             populateFilterDropdown(); 
             populateCompareDropdowns();
-            populatePendingDropdown(); // 📌 โหลดข้อมูลลง Dropdown งานรอตรวจสอบ
+            populatePendingDropdown(); 
             
             google.charts.setOnLoadCallback(() => { updateDashboard(); });
           })
@@ -695,7 +695,7 @@
       // ================= 📌 PENDING DASHBOARD (งานรอตรวจสอบ) =================
       function populatePendingDropdown() {
         var s = document.getElementById('pendingFilterSelect');
-        [...new Set(pendingData.map(i => i.province))].sort().forEach(val => {
+        [...new Set(window.pendingData.map(i => i.province))].sort().forEach(val => {
           var o = document.createElement('option'); o.value = val; o.text = val; s.appendChild(o);
         });
       }
@@ -705,9 +705,9 @@
         var search = document.getElementById('pendingSearchInput').value.toLowerCase().trim();
         
         // 📌 กรองข้อมูลตามที่ค้นหาและเลือก
-        var fData = pendingData.filter(i => (sel === 'all' || i.province === sel) && (search === '' || i.province.toLowerCase().includes(search) || i.branch.toLowerCase().includes(search)));
+        var fData = window.pendingData.filter(i => (sel === 'all' || i.province === sel) && (search === '' || i.province.toLowerCase().includes(search) || i.branch.toLowerCase().includes(search)));
         
-        var tData = fData;
+        var tData = [];
         if (sel === 'all' && search === '') {
           // ถ้าเลือกภาพรวมทั้งหมด ให้จัดกลุ่ม (Group) ตามจังหวัด
           var g = {};
@@ -721,7 +721,8 @@
           // 📌 เรียงลำดับจากจังหวัดที่มีงานรอตรวจสอบมากไปหาน้อย
           tData.sort((a, b) => b.count - a.count);
         } else {
-          // ถ้าเลือกเจาะจงจังหวัด ให้โชว์รายชื่อที่ทำการ (เรียงตามรหัสที่ทำการ postCodeResponsible)
+          // ถ้าเลือกเจาะจงจังหวัด ให้โชว์รายชื่อที่ทำการ (เรียงตามรหัสที่ทำการ postCode)
+          tData = fData;
           tData.sort((a, b) => a.postCode - b.postCode);
         }
         
