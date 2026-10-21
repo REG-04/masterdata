@@ -111,8 +111,9 @@
       <ul class="nav-menu">
         <li><a id="nav-overview" class="nav-link active" onclick="switchTab('overview')"><i class="bi bi-grid-fill"></i> ภาพรวมระบบ</a></li>
         <li><a id="nav-compare" class="nav-link" onclick="switchTab('compare')"><i class="bi bi-bar-chart-line-fill"></i> เปรียบเทียบผลงาน</a></li>
-        <!-- 📌 เพิ่มเมนูงานรอตรวจสอบ -->
         <li><a id="nav-pending" class="nav-link" onclick="switchTab('pending')"><i class="bi bi-card-checklist"></i> งานรอตรวจสอบ</a></li>
+        <!-- 📌 เพิ่มเมนูประวัติรายที่ทำการ -->
+        <li><a id="nav-history" class="nav-link" onclick="switchTab('history')"><i class="bi bi-clock-history"></i> ประวัติรายที่ทำการ</a></li>
       </ul>
 
       <!-- ตัวกรองของหน้า Overview -->
@@ -138,7 +139,7 @@
         <select id="baseDate" class="form-select form-select-custom" onchange="updateCompare()">
            <option value="">กำลังโหลด...</option>
         </select>
-        <label for="targetDate" class="filter-label"><i class="bi bi-calendar-plus"></i> วันที่เปรียบเทียบ (ปัจจุบัน)</label>
+        <label for="targetDate" class="filter-label"><i class="bi bi-calendar-plus"></i> วันที่เปรียบเทียบ (ปัจจุบัน/อดีต)</label>
         <select id="targetDate" class="form-select form-select-custom" onchange="updateCompare()">
            <option value="live">🟢 ข้อมูลปัจจุบัน (Live)</option>
         </select>
@@ -148,7 +149,7 @@
         </select>
       </div>
 
-      <!-- 📌 ตัวกรองของหน้า งานรอตรวจสอบ -->
+      <!-- ตัวกรองของหน้า งานรอตรวจสอบ -->
       <div class="sidebar-filter mb-3" id="pending-filters" style="display: none;">
         <label for="pendingSearchInput" class="filter-label"><i class="bi bi-search"></i> ค้นหาชื่อที่ทำการ</label>
         <input type="text" id="pendingSearchInput" class="form-control form-input-custom" placeholder="พิมพ์คำค้นหา..." onkeyup="updatePendingDashboard()">
@@ -156,6 +157,25 @@
         <select id="pendingFilterSelect" class="form-select form-select-custom mb-0" onchange="updatePendingDashboard()">
           <option value="all">🌐 แสดงภาพรวมทั้งหมด</option>
         </select>
+      </div>
+
+      <!-- 📌 ตัวกรองของหน้า ประวัติรายที่ทำการ -->
+      <div class="sidebar-filter mb-3" id="history-filters" style="display: none;">
+        <label class="filter-label"><i class="bi bi-geo-alt-fill"></i> เลือกกลุ่ม ปจ.</label>
+        <select id="histProvinceSelect" class="form-select form-select-custom" onchange="populateHistBranch(); updateHistoryDashboard();">
+          <option value="">-- เลือกกลุ่ม ปจ. --</option>
+        </select>
+        
+        <label class="filter-label"><i class="bi bi-building"></i> เลือกที่ทำการ</label>
+        <select id="histBranchSelect" class="form-select form-select-custom" onchange="updateHistoryDashboard()">
+          <option value="">-- รอเลือกกลุ่ม ปจ. --</option>
+        </select>
+
+        <label class="filter-label"><i class="bi bi-calendar-range"></i> ตั้งแต่วันที่</label>
+        <select id="histStartDate" class="form-select form-select-custom" onchange="updateHistoryDashboard()"></select>
+
+        <label class="filter-label"><i class="bi bi-calendar-range"></i> ถึงวันที่</label>
+        <select id="histEndDate" class="form-select form-select-custom mb-0" onchange="updateHistoryDashboard()"></select>
       </div>
     </div>
 
@@ -288,7 +308,7 @@
           </div>
         </div>
 
-        <!-- แถว 3: Compare Table (พร้อมปุ่มแคปเจอร์) -->
+        <!-- แถว 3: Compare Table -->
         <div class="row">
           <div class="col-12">
             <div class="card mb-3" id="comp-export-section">
@@ -300,17 +320,14 @@
                   </button>
                 </div>
               </div>
-              
-              <!-- หัวกระดาษเวลาแคปเจอร์ -->
               <div class="text-center pt-3 pb-2 px-3">
                 <h5 class="fw-bold mb-1" style="color: var(--thp-red);" id="comp-report-title">ตารางวิเคราะห์ผลงาน</h5>
                 <p class="text-secondary mb-2" style="font-size: 0.85rem; font-weight: 500;" id="comp-report-date"></p>
               </div>
-
               <div class="table-responsive" id="comp-table-container">
                 <table class="table align-middle text-center" id="comp-capture-table">
                   <thead>
-                    <tr><th id="comp-table-header-name">กลุ่ม ปจ.</th><th>เปอร์เซ็นต์ (อดีต)</th><th>เปอร์เซ็นต์ (ปัจจุบัน)</th><th>ส่วนต่างยอดสำเร็จ</th><th>ส่วนต่างเปอร์เซ็นต์</th></tr>
+                    <tr><th id="comp-table-header-name">กลุ่ม ปจ.</th><th>เปอร์เซ็นต์ (อดีต)</th><th>เปอร์เซ็นต์ (เป้าหมาย)</th><th>ส่วนต่างยอดสำเร็จ</th><th>ส่วนต่างเปอร์เซ็นต์</th></tr>
                   </thead>
                   <tbody id="comp-dataTable"></tbody>
                 </table>
@@ -320,7 +337,7 @@
         </div>
       </div>
 
-      <!-- ==================== 📌 TAB: PENDING (งานรอตรวจสอบ) ==================== -->
+      <!-- ==================== TAB: PENDING (งานรอตรวจสอบ) ==================== -->
       <div id="tab-pending" style="display: none;">
         <!-- Card ยอดรวม -->
         <div class="row">
@@ -344,13 +361,10 @@
                   </button>
                 </div>
               </div>
-              
-              <!-- หัวกระดาษเวลาแคปเจอร์ -->
               <div class="text-center pt-3 pb-2 px-3">
                 <h5 class="fw-bold mb-1" style="color: var(--thp-red);" id="pending-report-title">รายงานยอดงานรอตรวจสอบ</h5>
                 <p class="text-secondary mb-2" style="font-size: 0.85rem; font-weight: 500;" id="pending-report-date"></p>
               </div>
-
               <div class="table-responsive" id="pending-table-container">
                 <table class="table align-middle text-center" id="pending-capture-table">
                   <thead>
@@ -369,6 +383,50 @@
         </div>
       </div>
       
+      <!-- ==================== 📌 TAB: HISTORY (ประวัติรายที่ทำการ) ==================== -->
+      <div id="tab-history" style="display: none;">
+        <!-- กราฟแนวโน้มรายวัน -->
+        <div class="row">
+          <div class="col-12 mb-3">
+            <div class="card h-100">
+              <div class="card-header-custom"><h6><i class="bi bi-graph-up"></i> กราฟแนวโน้มความสำเร็จ (รายวัน)</h6></div>
+              <div class="card-body p-2 scrollable-chart-wrapper" id="hist-chart-wrapper">
+                <div id="hist-linechart" class="chart-container-large">
+                   <div class="text-center py-5 text-muted">กรุณาเลือกที่ทำการเพื่อแสดงกราฟ</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ตารางประวัติรายวัน -->
+        <div class="row">
+          <div class="col-12">
+            <div class="card mb-3">
+              <div class="card-header-custom">
+                <h6><i class="bi bi-table"></i> ตารางประวัติรายวัน</h6>
+              </div>
+              <div class="table-responsive" id="hist-table-container">
+                <table class="table align-middle text-center">
+                  <thead>
+                    <tr>
+                      <th>วันที่</th>
+                      <th>ยอดเป้าหมาย</th>
+                      <th>สำเร็จแล้ว</th>
+                      <th>เปอร์เซ็นต์สะสม</th>
+                      <th>ความก้าวหน้า (เทียบวันก่อนหน้า)</th>
+                    </tr>
+                  </thead>
+                  <tbody id="hist-dataTable">
+                    <tr><td colspan="5" class="py-4 text-muted bg-white">กรุณาเลือกที่ทำการเพื่อดูประวัติ</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
 
     <script>
@@ -387,14 +445,17 @@
         document.getElementById('nav-overview').classList.remove('active');
         document.getElementById('nav-compare').classList.remove('active');
         document.getElementById('nav-pending').classList.remove('active');
+        document.getElementById('nav-history').classList.remove('active'); 
         
         document.getElementById('tab-overview').style.display = 'none';
         document.getElementById('tab-compare').style.display = 'none';
         document.getElementById('tab-pending').style.display = 'none';
+        document.getElementById('tab-history').style.display = 'none'; 
         
         document.getElementById('overview-filters').style.display = 'none';
         document.getElementById('compare-filters').style.display = 'none';
         document.getElementById('pending-filters').style.display = 'none';
+        document.getElementById('history-filters').style.display = 'none'; 
         
         document.getElementById('nav-' + tab).classList.add('active');
         document.getElementById('tab-' + tab).style.display = 'block';
@@ -411,6 +472,10 @@
           document.getElementById('page-main-title').innerText = 'งานรอตรวจสอบ';
           document.getElementById('pending-filters').style.display = 'block';
           updatePendingDashboard();
+        } else if (tab === 'history') {
+          document.getElementById('page-main-title').innerText = 'ประวัติและแนวโน้มรายที่ทำการ';
+          document.getElementById('history-filters').style.display = 'block';
+          if(historyData.length > 0) populateHistoryDropdowns();
         }
       }
 
@@ -433,13 +498,13 @@
             historyData = data.history || [];
             sheetHeaders = data.headers || [];
             
-            // 📌 รับข้อมูลงานรอตรวจสอบจาก API แล้วใส่เป็นตัวแปร Global
             window.pendingData = data.pending || []; 
             
             buildTableHeaders(sheetHeaders);
             populateFilterDropdown(); 
             populateCompareDropdowns();
             populatePendingDropdown(); 
+            populateHistoryDropdowns();
             
             google.charts.setOnLoadCallback(() => { updateDashboard(); });
           })
@@ -488,10 +553,8 @@
             var pctVal = g[p].t>0 ? (g[p].c/g[p].t)*100 : 0;
             return {colA:'-', colB:'กลุ่ม '+p, colC:p, colD:g[p].t, colE:g[p].c, colF:g[p].x, colG:g[p].w, colH:pctVal.toFixed(2)+'%', pctVal: pctVal}; 
           });
-          // ภาพรวมทั้งหมด: เรียงเปอร์เซ็นต์ความสำเร็จจากมากไปน้อย
           tData.sort((a,b) => b.pctVal - a.pctVal);
         } else {
-          // รายกลุ่ม ปจ.: เรียงตามรหัสที่ทำการ (คอลัมน์ A) 
           tData.sort((a, b) => String(a.colA).localeCompare(String(b.colA), 'th', {numeric: true}));
         }
         drawChartsOverview(fData, sel, search); updateTableOverview(tData);
@@ -527,7 +590,6 @@
         
         var sumTotal = 0, sumCompleted = 0, sumCanceled = 0, sumPending = 0;
 
-        // สร้างตารางข้อมูลทีละบรรทัด พร้อมกับบวกเลขยอดสะสม
         data.forEach((i, idx) => {
           sumTotal += parseNum(i.colD);
           sumCompleted += parseNum(i.colE);
@@ -548,10 +610,8 @@
           </tr>`;
         });
 
-        // คำนวณเปอร์เซ็นต์ของยอดรวมทั้งหมด
         var totalPct = sumTotal > 0 ? ((sumCompleted / sumTotal) * 100).toFixed(2) + "%" : "0.00%";
 
-        // 📌 สร้างแถว "รวมทั้งสิ้น" สไตล์ใหม่ (มีสีสันตามสถานะตัวเลข)
         tb.innerHTML += `<tr style="background-color: #fff9f5; border-top: 2px solid var(--thp-red); box-shadow: 0 -4px 10px rgba(0,0,0,0.03);">
           <td colspan="3" class="fw-bold text-end pe-4" style="color: var(--thp-red); font-size: 1.05rem;">
             <i class="bi bi-bar-chart-fill me-1"></i> รวมทั้งสิ้น
@@ -566,11 +626,29 @@
 
       // ================= COMPARE DASHBOARD =================
       function populateCompareDropdowns() {
-        var bSel = document.getElementById('baseDate'), dates = [...new Set(historyData.map(i => i.hDate))];
+        var bSel = document.getElementById('baseDate');
+        var tSel = document.getElementById('targetDate'); 
+        var dates = [...new Set(historyData.map(i => i.hDate))];
+        
         bSel.innerHTML = '';
-        if(dates.length === 0) { bSel.innerHTML = '<option value="">ไม่มีประวัติย้อนหลัง</option>'; return; }
+        tSel.innerHTML = '<option value="live">🟢 ข้อมูลปัจจุบัน (Live)</option>';
+        
+        if(dates.length === 0) { 
+          bSel.innerHTML = '<option value="">ไม่มีประวัติย้อนหลัง</option>'; 
+          return; 
+        }
+        
         dates.sort((a,b) => { var d1=a.split('/'), d2=b.split('/'); return new Date(d2[2],d2[1]-1,d2[0]) - new Date(d1[2],d1[1]-1,d1[0]); });
-        dates.forEach(d => { var o = document.createElement('option'); o.value = d; o.text = d; bSel.appendChild(o); });
+        
+        dates.forEach(d => { 
+          var o1 = document.createElement('option'); o1.value = d; o1.text = d; bSel.appendChild(o1); 
+          var o2 = document.createElement('option'); o2.value = d; o2.text = d; tSel.appendChild(o2); 
+        });
+
+        // ให้ระบบเลือกวันที่ฐาน (อดีต) เป็นข้อมูลถัดไป 1 วันอัตโนมัติเพื่อให้เห็นความต่าง
+        if(dates.length > 1) {
+          bSel.selectedIndex = 1;
+        }
       }
 
       function updateCompare() {
@@ -591,7 +669,6 @@
         var gb = {}, gt = {};
         var groupKey = (selGroup === 'all') ? 'colC' : 'colB'; 
         
-        // 📌 เก็บ colA (รหัสที่ทำการ) เอาไว้ใช้จัดเรียงตอนดูราย ปจ. ด้วย
         bData.forEach(i => { var p = String(i[groupKey]); if(!gb[p]) gb[p]={t:0,c:0,w:0, colA: i.colA}; gb[p].t+=parseNum(i.colD); gb[p].c+=parseNum(i.colE); gb[p].w+=parseNum(i.colG); });
         tData.forEach(i => { var p = String(i[groupKey]); if(!gt[p]) gt[p]={t:0,c:0,w:0, colA: i.colA}; gt[p].t+=parseNum(i.colD); gt[p].c+=parseNum(i.colE); gt[p].w+=parseNum(i.colG); });
 
@@ -638,7 +715,9 @@
           compareList.sort((a, b) => String(a.colA).localeCompare(String(b.colA), 'th', {numeric: true}));
         }
 
-        var cArr = [[chartCategoryName, 'อดีต ('+bDate+')', 'ปัจจุบัน']];
+        var tDateLabel = (tDate === 'live') ? 'ปัจจุบัน (Live)' : tDate;
+        var cArr = [[chartCategoryName, bDate, tDateLabel]];
+        
         compareList.forEach(item => cArr.push([item.name, item.b_c, item.t_c]));
         
         var cw = Math.max((cArr.length-1)*60, document.getElementById('comp-barchart-wrapper').clientWidth-20);
@@ -656,7 +735,6 @@
 
         var tb = document.getElementById('comp-dataTable'); tb.innerHTML = '';
         compareList.forEach(item => {
-          // 📌 เปลี่ยน 0 ให้เป็นสีแดง
           var sc = item.dc>0 ? `<span class="text-success fw-bold">▲ +${item.dc.toLocaleString()}</span>` : (item.dc<0?`<span class="text-danger fw-bold">▼ ${item.dc.toLocaleString()}</span>`:'<span class="text-danger fw-bold">0</span>');
           var sp = item.dp>0 ? `<span class="text-success fw-bold">▲ +${item.dp.toFixed(2)}%</span>` : (item.dp<0?`<span class="text-danger fw-bold">▼ ${item.dp.toFixed(2)}%</span>`:'<span class="text-danger fw-bold">0.00%</span>');
           
@@ -668,7 +746,6 @@
         var totalDc = cT - cB;
         var totalDp = totalTPct - totalBPct;
         
-        // 📌 เปลี่ยน 0 ให้เป็นสีแดง ในแถวรวมด้านล่าง
         var tsc = totalDc>0 ? `<span class="text-success fw-bold">▲ +${totalDc.toLocaleString()}</span>` : (totalDc<0?`<span class="text-danger fw-bold">▼ ${totalDc.toLocaleString()}</span>`:'<span class="text-danger fw-bold">0</span>');
         var tsp = totalDp>0 ? `<span class="text-success fw-bold">▲ +${totalDp.toFixed(2)}%</span>` : (totalDp<0?`<span class="text-danger fw-bold">▼ ${totalDp.toFixed(2)}%</span>`:'<span class="text-danger fw-bold">0.00%</span>');
 
@@ -692,7 +769,7 @@
         else el.className = 'delta-text ' + (!goodIsUp?'delta-up':'delta-down');
       }
 
-      // ================= 📌 PENDING DASHBOARD (งานรอตรวจสอบ) =================
+      // ================= PENDING DASHBOARD (งานรอตรวจสอบ) =================
       function populatePendingDropdown() {
         var s = document.getElementById('pendingFilterSelect');
         [...new Set(window.pendingData.map(i => i.province))].sort().forEach(val => {
@@ -704,12 +781,10 @@
         var sel = document.getElementById('pendingFilterSelect').value;
         var search = document.getElementById('pendingSearchInput').value.toLowerCase().trim();
         
-        // 📌 กรองข้อมูลตามที่ค้นหาและเลือก
         var fData = window.pendingData.filter(i => (sel === 'all' || i.province === sel) && (search === '' || i.province.toLowerCase().includes(search) || i.branch.toLowerCase().includes(search)));
         
         var tData = [];
         if (sel === 'all' && search === '') {
-          // ถ้าเลือกภาพรวมทั้งหมด ให้จัดกลุ่ม (Group) ตามจังหวัด
           var g = {};
           fData.forEach(i => {
             if(!g[i.province]) g[i.province] = 0;
@@ -718,15 +793,12 @@
           tData = Object.keys(g).map(p => {
             return { province: p, branch: 'รวมทุกที่ทำการ', count: g[p] };
           });
-          // 📌 เรียงลำดับจากจังหวัดที่มีงานรอตรวจสอบมากไปหาน้อย
           tData.sort((a, b) => b.count - a.count);
         } else {
-          // ถ้าเลือกเจาะจงจังหวัด ให้โชว์รายชื่อที่ทำการ (เรียงตามรหัสที่ทำการ postCode)
           tData = fData;
           tData.sort((a, b) => a.postCode - b.postCode);
         }
         
-        // 📌 อัปเดตหัวข้อรายงาน
         var rt = document.getElementById('pending-report-title');
         if (sel === 'all') { rt.innerText = "รายงานยอดงานรอตรวจสอบ: ภาพรวมทุกกลุ่ม ปจ."; }
         else { rt.innerText = "รายงานยอดงานรอตรวจสอบ: กลุ่ม ปจ. " + sel; }
@@ -747,16 +819,122 @@
           </tr>`;
         });
         
-        // อัปเดตยอดการ์ดรวมด้านบน
         document.getElementById('sum-pending-total').innerText = sumPending.toLocaleString();
         
-        // 📌 แถบผลรวมด้านล่างสุดของตาราง
         tb.innerHTML += `<tr style="background-color: #fff9f5; border-top: 2px solid var(--thp-red); box-shadow: 0 -4px 10px rgba(0,0,0,0.03);">
             <td colspan="3" class="fw-bold text-end pe-4" style="color: var(--thp-red); font-size: 1.05rem;">
               <i class="bi bi-bar-chart-fill me-1"></i> รวมทั้งสิ้น (ยอดรอตรวจสอบ)
             </td>
             <td class="fw-bold" style="color: var(--thp-orange); font-size: 1.15rem;">${sumPending.toLocaleString()}</td>
           </tr>`;
+      }
+
+      // ================= 📌 HISTORY DASHBOARD (ประวัติรายที่ทำการ) =================
+      function populateHistoryDropdowns() {
+        var pSel = document.getElementById('histProvinceSelect');
+        var provs = [...new Set(historyData.map(i => i.colC))].filter(Boolean);
+        
+        if(pSel.options.length <= 1) {
+          provs.sort().forEach(p => pSel.add(new Option(p, p)));
+        }
+        
+        var dates = [...new Set(historyData.map(i => i.hDate))].filter(Boolean);
+        dates.sort((a,b) => { var d1=a.split('/'), d2=b.split('/'); return new Date(d1[2],d1[1]-1,d1[0]) - new Date(d2[2],d2[1]-1,d2[0]); });
+        
+        var sDate = document.getElementById('histStartDate');
+        var eDate = document.getElementById('histEndDate');
+        
+        if(sDate.options.length === 0) {
+          dates.forEach(d => { sDate.add(new Option(d, d)); eDate.add(new Option(d, d)); });
+          if(dates.length > 0) {
+            sDate.selectedIndex = 0; 
+            eDate.selectedIndex = dates.length - 1; 
+          }
+        }
+      }
+
+      function populateHistBranch() {
+        var prov = document.getElementById('histProvinceSelect').value;
+        var bSel = document.getElementById('histBranchSelect');
+        bSel.innerHTML = '<option value="">-- เลือกที่ทำการ --</option>';
+        if(!prov) return;
+        
+        var branches = [...new Set(historyData.filter(i => i.colC === prov).map(i => i.colB))].filter(Boolean).sort();
+        branches.forEach(b => bSel.add(new Option(b, b)));
+      }
+
+      function updateHistoryDashboard() {
+        var prov = document.getElementById('histProvinceSelect').value;
+        var branch = document.getElementById('histBranchSelect').value;
+        var start = document.getElementById('histStartDate').value;
+        var end = document.getElementById('histEndDate').value;
+        
+        var tb = document.getElementById('hist-dataTable');
+        if(!branch) {
+          tb.innerHTML = '<tr><td colspan="5" class="py-4 text-muted bg-white">กรุณาเลือกที่ทำการเพื่อดูประวัติ</td></tr>';
+          document.getElementById('hist-linechart').innerHTML = '<div class="text-center py-5 text-muted">กรุณาเลือกที่ทำการเพื่อแสดงกราฟ</div>';
+          return;
+        }
+        
+        var parseD = (dStr) => { var p = dStr.split('/'); return new Date(p[2], p[1]-1, p[0]).getTime(); };
+        var sTime = parseD(start);
+        var eTime = parseD(end);
+        
+        var bData = historyData.filter(i => i.colB === branch && parseD(i.hDate) >= sTime && parseD(i.hDate) <= eTime);
+        bData.sort((a,b) => parseD(a.hDate) - parseD(b.hDate)); 
+        
+        tb.innerHTML = '';
+        if(bData.length === 0) {
+           tb.innerHTML = '<tr><td colspan="5" class="py-4 text-muted bg-white">ไม่พบข้อมูลในช่วงวันที่เลือก</td></tr>';
+           document.getElementById('hist-linechart').innerHTML = '';
+           return;
+        }
+        
+        var chartData = [['วันที่', 'สำเร็จแล้ว', 'เป้าหมายทั้งหมด']];
+        var prevCompleted = 0, prevPct = 0;
+        
+        bData.forEach((row, idx) => {
+           var t = parseNum(row.colD);
+           var c = parseNum(row.colE);
+           var pct = t > 0 ? (c/t)*100 : 0;
+           
+           var diff = c - prevCompleted;
+           var diffPct = pct - prevPct;
+           
+           var diffHtml = '-';
+           if(idx > 0) {
+               if(diff > 0) diffHtml = `<span class="text-success fw-bold">▲ +${diff.toLocaleString()} (+${diffPct.toFixed(2)}%)</span>`;
+               else if(diff < 0) diffHtml = `<span class="text-danger fw-bold">▼ ${diff.toLocaleString()} (${diffPct.toFixed(2)}%)</span>`;
+               else diffHtml = `<span class="text-muted fw-bold">0 (0.00%)</span>`;
+           }
+           
+           tb.innerHTML += `<tr class="${idx%2===0?'row-white':'row-gray'}">
+              <td class="fw-bold">${row.hDate}</td>
+              <td class="text-slate-500">${t.toLocaleString()}</td>
+              <td class="fw-bold text-primary">${c.toLocaleString()}</td>
+              <td><span class="badge-modern badge-blue">${pct.toFixed(2)}%</span></td>
+              <td>${diffHtml}</td>
+           </tr>`;
+           
+           chartData.push([row.hDate, c, t]);
+           prevCompleted = c;
+           prevPct = pct;
+        });
+        
+        var cw = Math.max((chartData.length-1)*65, document.getElementById('hist-chart-wrapper').clientWidth-20);
+        var options = {
+          width: cw,
+          colors: ['#16a34a', '#e2e8f0'],
+          seriesType: 'line',
+          series: {1: {type: 'bars'}}, 
+          chartArea: { left:40, right:10, top:30, bottom:50 },
+          legend: {position: 'top'},
+          hAxis: {slantedText: true},
+          pointSize: 6,
+          lineWidth: 3
+        };
+        var chart = new google.visualization.ComboChart(document.getElementById('hist-linechart'));
+        chart.draw(google.visualization.arrayToDataTable(chartData), options);
       }
       
       // ================= EXPORT FUNCTIONS =================
@@ -836,7 +1014,6 @@
         }, 500);
       }
 
-      // 📌 ฟังก์ชันแคปเจอร์ภาพ หน้างานรอตรวจสอบ
       function exportPendingTableToImage() {
         var btn = document.getElementById('btn-pending-export'), 
             ex = document.getElementById('pending-export-section'), 
